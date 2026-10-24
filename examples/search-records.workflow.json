@@ -1,0 +1,70 @@
+{
+	"name": "Lark — Tìm kiếm bằng bộ lọc trực quan",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "01599b24-6f28-4a14-8359-aaf3ef288cf3",
+			"name": "Chạy thủ công",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {},
+			"id": "c60f673b-c9f4-4e69-8051-9d3add56f69d",
+			"name": "Lark Access Token",
+			"type": "@vutiendung/n8n-nodes-lark-base.larkAccessToken",
+			"typeVersion": 2,
+			"position": [260, 0],
+			"notes": "Chọn credential Lark API (Vutiendung). Tệp mẫu không chứa credential, secret hoặc token thật."
+		},
+		{
+			"parameters": {
+				"authentication": "tenantToken",
+				"tenantAccessToken": "={{ $json.tenant_access_token }}",
+				"platform": "lark",
+				"resource": "record",
+				"operation": "search",
+				"base": "https://example.larksuite.com/base/THAYAPPTOKEN?table=tblTHAYTABLEID",
+				"table": { "__rl": true, "mode": "id", "value": "" },
+				"returnAll": true,
+				"filterMode": "builder",
+				"filterConjunction": "and",
+				"filterConditions": {
+					"condition": [
+						{
+							"fieldSource": "manual",
+							"fieldNameManual": "Shop",
+							"operator": "is",
+							"valueMode": "single",
+							"singleValue": "Shop A"
+						},
+						{
+							"fieldSource": "manual",
+							"fieldNameManual": "Nhãn",
+							"operator": "contains",
+							"valueMode": "multiple",
+							"multipleValues": "Khách mới\nĐã liên hệ"
+						}
+					]
+				},
+				"options": {}
+			},
+			"id": "3fb7404a-c40c-4a17-bad7-f85fa6fa7216",
+			"name": "Lark Base (Vutiendung)",
+			"type": "@vutiendung/n8n-nodes-lark-base.larkBase",
+			"typeVersion": 3,
+			"position": [520, 0],
+			"notes": "Thay Base/bảng/tên cột/giá trị thật. Ví dụ cột Shop dạng Text và Nhãn dạng Multi Select; đổi sang Danh sách cột sau khi chạy node token nếu muốn."
+		}
+	],
+	"connections": {
+		"Chạy thủ công": { "main": [[{ "node": "Lark Access Token", "type": "main", "index": 0 }]] },
+		"Lark Access Token": {
+			"main": [[{ "node": "Lark Base (Vutiendung)", "type": "main", "index": 0 }]]
+		}
+	},
+	"settings": { "executionOrder": "v1" },
+	"active": false,
+	"pinData": {}
+}

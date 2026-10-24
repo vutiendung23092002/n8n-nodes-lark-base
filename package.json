@@ -1,0 +1,80 @@
+{
+	"name": "@vutiendung/n8n-nodes-lark-base",
+	"version": "0.3.1",
+	"description": "Kết nối Lark Base với n8n: đọc, tìm kiếm và cập nhật bản ghi theo cấu trúc bảng.",
+	"license": "MIT",
+	"author": {
+		"name": "Những người đóng góp cho @vutiendung/n8n-nodes-lark-base"
+	},
+	"keywords": [
+		"n8n-community-node-package",
+		"lark",
+		"base",
+		"feishu"
+	],
+	"engines": {
+		"node": ">=22.16"
+	},
+	"publishConfig": {
+		"access": "public",
+		"registry": "https://registry.npmjs.org/"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"typecheck": "tsc --noEmit && tsc -p tsconfig.test.json",
+		"test": "tsx --test tests/*.test.ts",
+		"test:package": "node scripts/check-package.mjs",
+		"format": "prettier --write credentials nodes shared tests docs *.json *.mjs *.md",
+		"prepack": "npm run lint && npm run build && npm test"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md",
+		"docs",
+		"examples"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": false,
+		"credentials": [
+			"dist/credentials/VutiendungLarkApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/LarkBase/v1/LarkBase.node.js",
+			"dist/nodes/LarkAccessToken/LarkAccessToken.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "0.18.0",
+		"@types/luxon": "3.7.1",
+		"@types/node": "^22.0.0",
+		"eslint": "9.39.1",
+		"n8n-workflow": "2.10.0",
+		"n8n-workflow-runtime-2-4-1": "npm:n8n-workflow@2.4.1",
+		"prettier": "3.6.2",
+		"tsx": "^4.20.0",
+		"typescript": "5.9.3"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	},
+	"peerDependenciesMeta": {
+		"n8n-workflow": {
+			"optional": true
+		}
+	},
+	"overrides": {
+		"handlebars": "4.7.10",
+		"form-data": "4.0.6",
+		"lodash": "4.18.1",
+		"minimatch@^9.0.3": "9.0.9"
+	},
+	"dependencies": {
+		"luxon": "3.7.2"
+	}
+}

@@ -1,0 +1,50 @@
+{
+	"name": "Lark — Lấy token rồi đọc Base",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "825ce53c-f2f7-438a-860b-a394d7674b4f",
+			"name": "Chạy thủ công",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {},
+			"id": "7c44edb3-e7cf-49a9-9242-507ff8dc6bd3",
+			"name": "Lark Access Token",
+			"type": "@vutiendung/n8n-nodes-lark-base.larkAccessToken",
+			"typeVersion": 2,
+			"position": [260, 0],
+			"notes": "Chọn hoặc tạo credential Lark API (Vutiendung) để lưu App ID/App Secret. Không nhập secret vào parameter. Tệp mẫu không chứa credential, secret hoặc token thật."
+		},
+		{
+			"parameters": {
+				"authentication": "tenantToken",
+				"tenantAccessToken": "={{ $json.tenant_access_token }}",
+				"platform": "lark",
+				"resource": "record",
+				"operation": "list",
+				"base": "https://example.larksuite.com/base/THAYAPPTOKEN?table=tblTHAYTABLEID",
+				"table": { "__rl": true, "mode": "id", "value": "" },
+				"returnAll": true,
+				"options": {}
+			},
+			"id": "d63e1d0a-5c39-4dc8-b197-6c0f62b060ef",
+			"name": "Lark Base (Vutiendung)",
+			"type": "@vutiendung/n8n-nodes-lark-base.larkBase",
+			"typeVersion": 2,
+			"position": [520, 0],
+			"notes": "Thay Base/bảng thật. Token lấy từ node trước; node Base không cần credential."
+		}
+	],
+	"connections": {
+		"Chạy thủ công": { "main": [[{ "node": "Lark Access Token", "type": "main", "index": 0 }]] },
+		"Lark Access Token": {
+			"main": [[{ "node": "Lark Base (Vutiendung)", "type": "main", "index": 0 }]]
+		}
+	},
+	"settings": { "executionOrder": "v1" },
+	"active": false,
+	"pinData": {}
+}

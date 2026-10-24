@@ -1,0 +1,37 @@
+{
+	"name": "Lark Base — Liệt kê bản ghi",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "c6fe7fe1-10c0-46ce-859c-dc6cb5ad6574",
+			"name": "Chạy thủ công",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "record",
+				"operation": "list",
+				"base": "https://example.larksuite.com/base/THAYAPPTOKEN?table=tblTHAYTABLEID",
+				"table": { "__rl": true, "mode": "id", "value": "" },
+				"returnAll": true,
+				"options": {}
+			},
+			"id": "54637924-8c79-4ac4-a271-ac6e62d9a844",
+			"name": "Lark Base (Vutiendung)",
+			"type": "@vutiendung/n8n-nodes-lark-base.larkBase",
+			"typeVersion": 1,
+			"position": [280, 0],
+			"notes": "Chọn credential Lark API (Vutiendung) và thay URL Base/bảng trước khi chạy. Workflow mẫu không chứa thông tin xác thực."
+		}
+	],
+	"connections": {
+		"Chạy thủ công": {
+			"main": [[{ "node": "Lark Base (Vutiendung)", "type": "main", "index": 0 }]]
+		}
+	},
+	"settings": { "executionOrder": "v1" },
+	"active": false,
+	"pinData": {}
+}

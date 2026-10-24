@@ -1,0 +1,11 @@
+{
+	"node": "@vutiendung/n8n-nodes-lark-base.larkBase",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Data & Storage", "Productivity"],
+	"resources": {
+		"primaryDocumentation": [
+			{ "url": "https://open.larksuite.com/document/server-docs/docs/bitable-v1/notification" }
+		]
+	}
+}

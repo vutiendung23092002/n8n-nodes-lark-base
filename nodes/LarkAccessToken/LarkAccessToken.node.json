@@ -1,0 +1,13 @@
+{
+	"node": "@vutiendung/n8n-nodes-lark-base.larkAccessToken",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Productivity"],
+	"resources": {
+		"primaryDocumentation": [
+			{
+				"url": "https://open.larksuite.com/document/server-docs/authentication-management/access-token/tenant_access_token_internal"
+			}
+		]
+	}
+}
