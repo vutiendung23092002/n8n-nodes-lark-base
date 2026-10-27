@@ -1,5 +1,18 @@
 # Nguồn chính thức đã đối chiếu
 
+## Bổ sung an toàn dữ liệu — 27/10/2026
+
+Đã đọc SDK Go chính thức tại commit `db9f52d0a88e3f5e4ed81bb34d71a28e3f5608fa`:
+
+- [CreateAppTableRecordReqBuilder.ClientToken](https://github.com/larksuite/oapi-sdk-go/blob/db9f52d0a88e3f5e4ed81bb34d71a28e3f5608fa/service/bitable/v1/model.go): query client_token dạng UUID v4, dùng cho request idempotent. Có IgnoreConsistencyCheck mặc định false.
+- Cùng tệp có BatchCreateAppTableRecordReqBuilder.ClientToken và IgnoreConsistencyCheck, xác nhận hỗ trợ Batch Create, không suy từ endpoint Create đơn.
+- SearchAppTableRecordReqBody/FilterInfo xác nhận conjunction/conditions, field_names, giá trị điều kiện là mảng chuỗi; Search response có items/has_more/page_token/total.
+- Các kiểu field Text=1, Number=2; mô tả AppTableRecord xác nhận fields và record_id. Logic parse Text rich text đối chiếu thêm [cấu trúc record chính thức](https://github.com/larksuite/openclaw-lark/blob/main/skills/feishu-bitable/references/record-values.md).
+
+Trang [Create](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/create), [Batch Create](https://open.feishu.cn/document/server-docs/docs/bitable-v1/app-table-record/batch_create), [Search](https://open.feishu.cn/document/docs/bitable-v1/app-table-record/search) không trả nội dung qua công cụ đọc do JavaScript; SDK chính thức được dùng để xác minh chữ ký request. Không đưa SDK vào dependency runtime.
+
+Không xác minh được TTL idempotency hoặc giải pháp atomic unique constraint từ nguồn chính thức; không hứa các bảo đảm đó. Nhóm OR giới hạn nội bộ 10 điều kiện/16.000 byte để tránh dựa vào mức tối đa chưa xác minh; nếu API từ chối payload thì fail, không Create. WriteConflict 1254291 không được retry vì chưa có bằng chứng chính thức rằng phát lại mọi loại write với lỗi này an toàn. Mã rate limit 99991400/1254290 đã được transport xử lý; chỉ phân loại lại theo mức an toàn request.
+
 Ngày khảo sát: 24/10/2026. Một số trang Lark/Feishu cần JavaScript và không trả nội dung API cho công cụ đọc; các chữ ký request/response được đối chiếu thêm bằng SDK do Lark phát hành, không suy diễn từ bài hướng dẫn cộng đồng.
 
 | Nội dung                                                                      | Nguồn                                                                                                                                                                                                                                 |

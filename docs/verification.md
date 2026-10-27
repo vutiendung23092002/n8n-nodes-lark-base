@@ -1,5 +1,19 @@
 # Kiểm chứng và tương thích
 
+## Đợt Unreleased an toàn dữ liệu — 27/10/2026
+
+Đọc cấu trúc repository, transport, pagination, action/helper/UI record, tests, README và docs trước khi sửa; đánh giá và plan lưu ở data-safety-plan.md. Giữ nguyên package version 0.3.1 và node version 1–3. Changelog Unreleased, đề xuất 0.4.0 khi phát hành. Không publish tự động.
+
+Thêm kiểm thử Upsert 0/1/nhiều record, lookup lỗi/rate limit/schema/cursor, trùng input trước HTTP và sau chuẩn hóa Number, Batch Upsert mixed/lookup nhóm/partial write, Update/Delete theo khóa, scan duplicate, output và pairedItem, retry deterministic/jitter/Retry-After/budget, UUID v4 dùng lại qua timeout/5xx/429/refresh. Giữ tất cả test cũ, không xóa test để tránh regression.
+
+Kết quả: lint, typecheck, build, **209/209 test** (151 cũ + 58 bổ sung), npm pack và test:package đạt. Gói local Unreleased vẫn mang version 0.3.1 theo yêu cầu chưa tăng version, không dùng nó để publish đè bản đã phát hành. Test:package kiểm tra 137 tệp, nạp metadata với runtime 2.4.1/enum cũ/không require runtime n8n, giữ các entry cũ lỗi trong cache.
+
+Đã cài chính tarball bằng npm vào thư mục tạm sạch (--omit=dev, --ignore-scripts), dùng PackageDirectoryLoader, Workflow, NodeHelpers và expression thật của n8n-core/n8n-workflow@2.4.1 để chạy workflow mẫu Batch Upsert với HTTP giả lập. Xác minh mixed create/update, response đảo thứ tự, record_index/pairedItem, mất phản hồi sau server tạo nhưng retry giữ cùng UUID và chỉ một nhóm tạo trong mô phỏng idempotent, chạy lại tuần tự chỉ Update không Create thêm. Khi Search trả 403 và Continue On Fail bật, mọi phần tử nhận error và số write tăng thêm là 0; token bị che khỏi message.
+
+Review cuối sửa thêm total mâu thuẫn/cursor sai kiểu/ID lặp giữa nhóm lookup, Search thiếu items, Number dạng chuỗi bị mất chữ số và redaction cả token cũ sau refresh. git diff --check đạt. Chưa chạy tenant/server người dùng, không commit/push/publish trong phiên này.
+
+Phép thử HTTP là giả lập, không chứng minh API Lark thật thực thi uniqueness hoặc TTL idempotency. Các giới hạn cạnh tranh/quyền/partial write ghi ở data-safety.md. Các kết quả lịch sử bên dưới mô tả từng bản đã kiểm tra trước đây.
+
 ## Môi trường đã chạy
 
 Ngày: 24/10/2026. Windows, PowerShell, Node.js 26.2.0, npm 11.13.0. Thực tế gọi `npm.cmd` vì PowerShell chặn `npm.ps1`.

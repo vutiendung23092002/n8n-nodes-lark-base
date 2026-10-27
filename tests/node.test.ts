@@ -576,3 +576,12 @@ test('Chọn bảng động cũng dùng token ngoài và không gọi credential
 		{ name: 'Khách hàng', value: 'tbl123' },
 	]);
 });
+
+test('Search/List thiếu items không được hiểu là không có record', async () => {
+	for (const operation of ['search', 'list']) {
+		const context = harness({ operation }, async () => ok({}), { continueOnFail: true });
+		const [output] = await new LarkBase().execute.call(context);
+		assert.equal(output.length, 1);
+		assert.match(output[0].json.error as string, /thiếu danh sách items/);
+	}
+});

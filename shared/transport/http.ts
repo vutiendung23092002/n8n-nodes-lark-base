@@ -1,6 +1,6 @@
 import type { IHttpRequestOptions, IExecuteFunctions } from 'n8n-workflow';
 import { LarkRequestError, normalizeLarkError } from './larkErrors';
-import { getWorkflowRuntime } from '../runtime';
+import { createRetryController, type RetryOptions } from './retry';
 
 export type HttpRequest = IExecuteFunctions['helpers']['httpRequest'];
 
@@ -21,8 +21,10 @@ export async function requestJson(
 	options: IHttpRequestOptions,
 	operation: string,
 	secrets: readonly string[],
+	retryOptions: RetryOptions = {},
 ): Promise<Record<string, unknown>> {
-	for (let attempt = 0; attempt <= 2; attempt++) {
+	const retry = createRetryController(retryOptions);
+	for (let attempt = 0; ; attempt++) {
 		let response: HttpResult;
 		try {
 			response = (await httpRequest({
@@ -34,28 +36,36 @@ export async function requestJson(
 				disableFollowRedirect: true,
 			})) as HttpResult;
 		} catch {
+			if (
+				(retry.policy === 'read' || retry.policy === 'idempotentCreate') &&
+				(await retry.wait(attempt))
+			)
+				continue;
 			// Không đính kèm lỗi HTTP gốc vì có thể chứa header Authorization hoặc request body.
 			throw new LarkRequestError(
-				`Không thể ${operation}: lỗi kết nối hoặc hết thời gian chờ tới Lark. Kiểm tra mạng và trạng thái dịch vụ; thao tác ghi có thể đã được thực hiện.`,
+				`Không thể ${operation}: lỗi kết nối hoặc hết thời gian chờ tới Lark. ${retry.policy === 'read' ? 'Không xác định được kết quả đọc; không được coi là không tìm thấy.' : 'Thao tác ghi có thể đã được thực hiện; kiểm tra Base trước khi chạy lại.'}`,
 				operation,
 			);
 		}
+		if (
+			!response ||
+			!Number.isInteger(response.statusCode) ||
+			response.statusCode < 100 ||
+			response.statusCode > 599
+		)
+			throw new LarkRequestError(
+				`Không thể ${operation}: phản hồi HTTP không hợp lệ, không xác định được kết quả.`,
+				operation,
+			);
 		const body = asObject(response.body);
 		const code = typeof body.code === 'number' ? body.code : undefined;
 		const limited = response.statusCode === 429 || code === 99991400 || code === 1254290;
-		if (limited && attempt < 2) {
-			const header = response.headers?.['retry-after'];
-			const raw = Array.isArray(header) ? header[0] : header;
-			const seconds = raw ? Number(raw) : NaN;
-			const delay =
-				raw && !Number.isFinite(seconds) ? Date.parse(raw) - Date.now() : seconds * 1000;
-			const waitMs = Number.isFinite(delay) ? Math.max(0, delay) : 500 * 2 ** attempt;
-			if (waitMs <= 30000) {
-				const { sleep } = getWorkflowRuntime();
-				await sleep(waitMs);
-				continue;
-			}
-		}
+		const transient = response.statusCode === 408 || response.statusCode >= 500;
+		// WriteConflict không nằm trong danh sách retry: chưa có bảo đảm an toàn side effect.
+		const mayRetry =
+			code !== 1254291 &&
+			(limited || (transient && (retry.policy === 'read' || retry.policy === 'idempotentCreate')));
+		if (mayRetry && (await retry.wait(attempt, asObject(response.headers)))) continue;
 		if (response.statusCode < 200 || response.statusCode >= 300 || code !== 0) {
 			throw normalizeLarkError(
 				operation,
@@ -67,5 +77,4 @@ export async function requestJson(
 		}
 		return body;
 	}
-	throw new LarkRequestError(`Không thể ${operation}: vượt số lần thử lại.`, operation);
 }

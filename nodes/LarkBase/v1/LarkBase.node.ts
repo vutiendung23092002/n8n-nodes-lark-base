@@ -10,7 +10,9 @@ import { recordOperations } from '../actions/record';
 import { createMetadataLoader } from '../helpers/metadata';
 import { buildRecordContext } from '../helpers/buildRecordContext';
 import { searchTables } from '../methods/listSearch';
-import { getFilterFields } from '../methods/loadOptions';
+import { getFilterFields, getUniqueKeyFields } from '../methods/loadOptions';
+import { preflightUniqueExecution } from '../helpers/uniquePreflight';
+import { uniqueErrorItem } from '../helpers/uniqueKey';
 import { properties } from '../LarkBase.description';
 import { usesTenantToken } from '../../../shared/transport/tokenAuthentication';
 
@@ -41,7 +43,7 @@ export class LarkBase implements INodeType {
 	};
 
 	methods = {
-		loadOptions: { getFilterFields },
+		loadOptions: { getFilterFields, getUniqueKeyFields },
 		listSearch: { searchTables },
 		credentialTest: {
 			larkApiTest: larkApiCredentialTest,
@@ -54,11 +56,19 @@ export class LarkBase implements INodeType {
 		if (!items.length) return [output];
 		// Metadata node không cần khởi tạo runtime n8n; chỉ nạp helper lỗi khi thực thi.
 		const { NodeOperationError } = getWorkflowRuntime();
+		const staged = await preflightUniqueExecution(this);
+		if (!this.continueOnFail()) {
+			for (const [itemIndex, entry] of staged)
+				if (entry instanceof Error)
+					throw new NodeOperationError(this.getNode(), entry.message, { itemIndex });
+		}
 		// Tạo client lười để lỗi credential vẫn tuân theo Continue On Fail cho từng item.
 		let clientPromise: ReturnType<typeof clientForContext> | undefined;
 		let metadata: ReturnType<typeof createMetadataLoader> | undefined;
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
+				const prepared = staged.get(itemIndex);
+				if (prepared instanceof Error) throw prepared;
 				const resource = this.getNodeParameter('resource', itemIndex) as string;
 				const operation = this.getNodeParameter('operation', itemIndex) as string;
 				const handler = Object.hasOwn(recordOperations, operation)
@@ -70,6 +80,11 @@ export class LarkBase implements INodeType {
 						'Tài nguyên hoặc thao tác Lark Base chưa được hỗ trợ.',
 						{ itemIndex },
 					);
+				if (prepared) {
+					const result = await handler(prepared.context);
+					for (const json of result) output.push({ json, pairedItem: { item: itemIndex } });
+					continue;
+				}
 				const directToken = usesTenantToken(this, itemIndex);
 				const client = directToken
 					? await clientForContext(this, itemIndex)
@@ -87,7 +102,7 @@ export class LarkBase implements INodeType {
 				const message =
 					error instanceof Error ? error.message : 'Không thể xử lý bản ghi Lark Base.';
 				if (this.continueOnFail()) {
-					output.push({ json: { error: message }, pairedItem: { item: itemIndex } });
+					output.push({ json: uniqueErrorItem(error), pairedItem: { item: itemIndex } });
 					continue;
 				}
 				throw new NodeOperationError(this.getNode(), message, { itemIndex });

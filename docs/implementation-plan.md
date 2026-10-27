@@ -1,5 +1,7 @@
 # Khảo sát và kế hoạch triển khai
 
+Đây là kế hoạch MVP lịch sử. Đợt an toàn dữ liệu/Upsert hiện tại được đánh giá và thực hiện theo [data-safety-plan.md](data-safety-plan.md); không dùng trạng thái chưa triển khai của bản MVP dưới đây để suy ra tính năng mã nguồn hiện tại.
+
 ## Hiện trạng ban đầu
 
 Ngày kiểm tra: 24/10/2026. Thư mục dự án trống, chưa có Git, package, credential, node, cấu hình TypeScript, lint hay test. Không có mã cũ cần giữ lại và không có AGENTS.md áp dụng trong các thư mục cha đã kiểm tra.

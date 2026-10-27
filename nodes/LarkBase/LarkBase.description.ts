@@ -1,9 +1,10 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { filterProperties } from './Filter.description';
+import { uniqueKeyProperties } from './UniqueKey.description';
 
 const readOperations = ['list', 'search'];
-const writeOperations = ['create', 'update'];
-const batchOperations = ['batchCreate', 'batchUpdate', 'batchDelete'];
+const writeOperations = ['create', 'update', 'upsert', 'updateByUniqueKey'];
+const batchOperations = ['batchCreate', 'batchUpdate', 'batchDelete', 'batchUpsert'];
 
 export const properties: INodeProperties[] = [
 	{
@@ -79,6 +80,18 @@ export const properties: INodeProperties[] = [
 				action: 'Cập nhật bản ghi theo lô',
 			},
 			{
+				name: 'Cập nhật theo Unique Key',
+				value: 'updateByUniqueKey',
+				description: 'Chỉ cập nhật khi lookup tìm thấy đúng một bản ghi',
+				action: 'Cập nhật bản ghi theo unique key',
+			},
+			{
+				name: 'Kiểm tra khóa trùng',
+				value: 'checkDuplicates',
+				description: 'Đọc toàn bảng và trả những khóa xuất hiện nhiều lần; không tự xóa',
+				action: 'Kiểm tra unique key trùng',
+			},
+			{
 				name: 'Lấy một bản ghi',
 				value: 'get',
 				description: 'Lấy bản ghi theo Record ID',
@@ -109,6 +122,19 @@ export const properties: INodeProperties[] = [
 				action: 'Tìm kiếm bản ghi',
 			},
 			{
+				name: 'Upsert',
+				value: 'upsert',
+				description:
+					'Lookup theo khóa: tạo khi không có, cập nhật khi có đúng một; lỗi khi trùng hoặc lookup thất bại',
+				action: 'Upsert bản ghi theo unique key',
+			},
+			{
+				name: 'Upsert theo lô',
+				value: 'batchUpsert',
+				description: 'Kiểm tra khóa trùng, lookup toàn lô rồi chia Batch Create/Update',
+				action: 'Upsert bản ghi theo lô',
+			},
+			{
 				name: 'Xóa',
 				value: 'delete',
 				description: 'Xóa bản ghi theo Record ID',
@@ -119,6 +145,12 @@ export const properties: INodeProperties[] = [
 				value: 'batchDelete',
 				description: 'Xóa nhiều bản ghi theo Record ID',
 				action: 'Xóa bản ghi theo lô',
+			},
+			{
+				name: 'Xóa theo Unique Key',
+				value: 'deleteByUniqueKey',
+				description: 'Chỉ xóa khi lookup tìm thấy đúng một bản ghi',
+				action: 'Xóa bản ghi theo unique key',
 			},
 		],
 	},
@@ -170,6 +202,7 @@ export const properties: INodeProperties[] = [
 		displayOptions: { show: { operation: ['get', 'update', 'delete'] } },
 		description: 'ID bản ghi bắt đầu bằng rec. Có thể lấy từ kết quả Liệt kê hoặc Tạo.',
 	},
+	...uniqueKeyProperties,
 	{
 		displayName: 'Trả về tất cả',
 		name: 'returnAll',
@@ -205,7 +238,7 @@ export const properties: INodeProperties[] = [
 		required: true,
 		displayOptions: { show: { operation: batchOperations } },
 		description:
-			'Tạo: [{"fields":{...}}]. Cập nhật: [{"record_id":"rec...","fields":{...}}]. Xóa: ["rec..."]. Hỗ trợ biểu thức trả về mảng.',
+			'Tạo/Upsert: [{"fields":{...}}]; Upsert cần có Unique Key trong fields. Cập nhật: [{"record_id":"rec...","fields":{...}}]. Xóa: ["rec..."]. Hỗ trợ biểu thức trả về mảng.',
 	},
 	{
 		displayName: 'Số bản ghi mỗi lô',

@@ -7,6 +7,8 @@ import { parseJsonValue, requireObject } from './normalizeFields';
 import { tablePath } from './metadata';
 import { parseFilter, parseSort } from './searchOptions';
 import { buildStructuredFilter } from './filterBuilder';
+import { readUniqueFieldName } from './uniqueParameters';
+import { uniqueOperations } from './uniqueKey';
 
 export async function buildRecordContext(
 	context: IExecuteFunctions,
@@ -26,7 +28,7 @@ export async function buildRecordContext(
 	const recordId = ['get', 'update', 'delete'].includes(operation)
 		? validateId((context.getNodeParameter('recordId', itemIndex) as string).trim(), 'rec')
 		: undefined;
-	const fields = ['create', 'update'].includes(operation)
+	const fields = ['create', 'update', 'upsert', 'updateByUniqueKey'].includes(operation)
 		? (requireObject(
 				parseJsonValue(context.getNodeParameter('fields', itemIndex), 'Fields'),
 				'Fields',
@@ -72,5 +74,14 @@ export async function buildRecordContext(
 		filter,
 		sort: reads ? parseSort(options.sort) : undefined,
 		metadata: () => metadata(base.appToken, tableId),
+		...(uniqueOperations.includes(operation)
+			? { uniqueKeyField: readUniqueFieldName(context, itemIndex) }
+			: {}),
+		...(operation === 'deleteByUniqueKey'
+			? { uniqueKeyValue: context.getNodeParameter('uniqueKeyValue', itemIndex) }
+			: {}),
+		...(operation === 'create'
+			? { clientToken: context.getNodeParameter('clientToken', itemIndex, '') as string }
+			: {}),
 	};
 }

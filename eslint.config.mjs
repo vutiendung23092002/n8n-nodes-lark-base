@@ -4,6 +4,24 @@ export default [
 	...config,
 	{ ignores: ['dist/**', 'node_modules/**'] },
 	{
+		files: ['nodes/LarkBase/LarkBase.description.ts'],
+		// Mô tả Upsert bằng tiếng Việt phải nêu rõ lỗi lookup/duplicate, không thay bằng mẫu tiếng Anh.
+		rules: {
+			'n8n-nodes-base/node-param-option-name-wrong-for-upsert': 'off',
+			'n8n-nodes-base/node-param-description-wrong-for-upsert': 'off',
+		},
+	},
+	{
+		files: ['nodes/LarkBase/UniqueKey.description.ts'],
+		// Lark Search nhận tên cột; nhãn và hướng dẫn tiếng Việt không dùng mẫu Name or ID.
+		rules: {
+			// client_token là mã idempotency UUID công khai cần lưu lại, không phải access token.
+			'n8n-nodes-base/node-param-type-options-password-missing': 'off',
+			'n8n-nodes-base/node-param-display-name-wrong-for-dynamic-options': 'off',
+			'n8n-nodes-base/node-param-description-wrong-for-dynamic-options': 'off',
+		},
+	},
+	{
 		files: ['nodes/LarkBase/Filter.description.ts'],
 		// Giữ thứ tự chọn cột → phép lọc → giá trị. API lọc cần tên cột, không nhận ID;
 		// nhãn/hướng dẫn tiếng Việt và chế độ nhập tên riêng phản ánh đúng hợp đồng đó.

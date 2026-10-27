@@ -107,3 +107,31 @@ test('Từ chối giới hạn và kích thước trang sai', async () => {
 		);
 	}
 });
+
+test('Phân trang lookup chặt không coi response thiếu hoặc total mâu thuẫn là rỗng', async () => {
+	for (const page of [
+		{},
+		{ items: [], has_more: false, total: 1 },
+		{ items: [1], has_more: false, total: 0 },
+		{ items: [], has_more: false, total: -1 },
+	]) {
+		await assert.rejects(paginateLarkApi(async () => page, { returnAll: true, strict: true }));
+	}
+	assert.deepEqual(
+		await paginateLarkApi(async () => ({ total: 0, has_more: false }), {
+			returnAll: true,
+			strict: true,
+		}),
+		[],
+	);
+	await assert.rejects(
+		paginateLarkApi(
+			async (token) =>
+				token
+					? { items: [2], has_more: false, total: 3 }
+					: { items: [1], has_more: true, page_token: 'next', total: 2 },
+			{ returnAll: true, strict: true },
+		),
+		/thay đổi/,
+	);
+});

@@ -102,6 +102,18 @@ Chưa thực hiện checklist này trong phiên phát triển vì không có ứ
 - [ ] Dùng hai n8n input items: output có liên kết đúng item tương ứng; không trộn Base/bảng/field giữa hai item.
 - [ ] Khi mạng bị ngắt trong thao tác tạo, kiểm tra Base trước khi chạy lại: node không tự gửi lại một Create có trạng thái không xác định.
 
+## An toàn dữ liệu và Unique Key (Unreleased)
+
+- [ ] App có quyền thấy toàn bảng/cột khóa. Dừng writer song song trong lúc thử; không dùng kết quả app bị hạn chế quyền làm bằng chứng không có record.
+- [ ] Import examples/upsert-records.workflow.json, chọn credential và Base thử nghiệm; tạo cột Text Mã đơn/Number Doanh thu. Upsert khóa mới tạo, chạy lại cập nhật cùng record_id.
+- [ ] Tạo sẵn hai record cùng khóa, Upsert báo duplicate_count/record_ids, không ghi; thử duplicate nằm trên trang sau.
+- [ ] Khóa null/rỗng/space và trùng input mảng/nhiều n8n items không được ghi. Number 0 hợp lệ; 01/1 trên Number bị coi trùng. Mã dài dùng Text.
+- [ ] Bật Continue On Fail, mô phỏng lỗi lookup 403/429/timeout/trang sau; output là error item, không có Create/Update.
+- [ ] Batch mixed đúng thứ tự output/pairedItem/record_index; lỗi một lookup hủy ghi toàn input batch; lỗi ghi dừng lô còn lại, kết quả trước đó có thể đã tồn tại.
+- [ ] Update/Delete theo khóa: 0 record lỗi, 1 ghi đúng ID, nhiều lỗi. Check Duplicates đọc hết trang, không tự xóa.
+- [ ] Quan sát request thử nghiệm (không log secret): Create/Batch Create có UUID v4 client_token, retry cùng request giữ token cũ; Update/Delete lỗi không tự retry.
+- [ ] Node version 1/2/3 và các operation cũ vẫn chạy; đối chiếu timing/retry mới theo docs/migration.md.
+
 ## Hoàn tất
 
 - [ ] Ghi kết quả đạt/chưa đạt, phiên bản n8n/Node.js, nền tảng, scope và cấu hình quyền nâng cao đã thử.

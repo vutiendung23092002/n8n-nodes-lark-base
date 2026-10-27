@@ -10,9 +10,8 @@ export const searchRecords: RecordOperation = async ({
 	sort,
 	pagination,
 }) =>
-	await paginateLarkApi<LarkRecord>(
-		(pageToken, pageSize) =>
-			client.request<LarkPage<LarkRecord>>({
+	await paginateLarkApi<LarkRecord>(async (pageToken, pageSize) => {
+		const page = await client.request<LarkPage<LarkRecord>>({
 				method: 'POST',
 				path: `${path}/records/search`,
 				operation: 'tìm hoặc liệt kê bản ghi',
@@ -27,5 +26,14 @@ export const searchRecords: RecordOperation = async ({
 					...(sort ? { sort } : {}),
 				},
 			}),
-		pagination,
-	);
+			validEmpty = page?.items === undefined && page?.total === 0 && page?.has_more === false;
+		if (
+			!page ||
+			(!Array.isArray(page.items) && !validEmpty) ||
+			(Array.isArray(page.items) && page.items.length === 0 && typeof page.has_more !== 'boolean')
+		)
+			throw new Error(
+				'Search thiếu danh sách items hợp lệ; không được hiểu lỗi phản hồi là không tìm thấy bản ghi.',
+			);
+		return page;
+	}, pagination);

@@ -1,5 +1,15 @@
 # Kiến trúc
 
+## An toàn dữ liệu (Unreleased)
+
+Giữ các lớp hiện tại và node version 1–3, không đổi default/định danh. `uniquePreflight.ts` kiểm tra khóa rỗng/trùng trên toàn input, sau đó chuẩn bị context/metadata/fields của operation theo khóa trước vòng ghi. Trùng trực tiếp được chặn trước HTTP; trùng canonical Number kiểm tra sau metadata nhưng trước lookup. Continue On Fail đánh dấu input lỗi, không tự chọn dòng thắng.
+
+`uniqueKey.ts` tập trung whitelist Text/Number, canonical key, rich text đọc từ Lark và lỗi có context. `uniqueLookup.ts` trả union not_found/found/duplicate; API lỗi throw. Search chính xác theo nhóm OR tối đa 10 khóa/filter 16.000 byte, không dùng view/filter/sort/Limit của UI. Pagination strict kiểm tra schema/cursor/total, không biến response lỗi thành rỗng. `unique.operation.ts` thực hiện ghi chỉ sau lookup đã xác nhận; Batch Upsert lookup toàn input batch trước ghi, Update rồi Create tuần tự. Response ghi được kiểm tra và map theo key/ID. Lỗi ghi dừng lô còn lại, không rollback. Check Duplicates chỉ đọc đủ trang.
+
+`retry.ts` phân loại read/write/idempotentCreate, backoff+jitter và Retry-After/budget với dependency inject để test deterministic. `createLarkClient` tự nhận diện GET/Search, Create/Batch Create và các write khác. Client cấp UUID v4 trước vòng retry/refresh, dùng cùng token khi retry Create, query ignore_consistency_check=false. Update/Delete không tự retry lỗi tạm thời; WriteConflict không tự retry. Luồng requestJson legacy cho token giữ giới hạn rate limit riêng.
+
+Unique Key không phải unique constraint; cần quyền toàn bảng và serialize writer. Không hứa transaction, snapshot hoặc idempotency xuyên execution. Tài liệu chi tiết ở upsert.md/data-safety.md; migration và lịch sử tách khỏi README.
+
 ## Luồng token riêng từ bản 0.2.0
 
 `nodes/LarkAccessToken/LarkAccessToken.node.ts` gọi helper `getTenantAccessToken` dùng chung với `createTenantTokenProvider`, chỉ trả token và thông tin thời hạn. Từ package 0.2.1, node token version 2 mặc định đọc credential Lark API; version 1 giữ parameter cũ để tương thích. Không sao chép App Secret hay dữ liệu input vào output. Token là dữ liệu được truyền theo workflow theo yêu cầu người dùng, có thể xuất hiện trong lịch sử chạy.
@@ -51,7 +61,7 @@ HTTP dùng helper n8n, timeout 30 giây, JSON, phản hồi đầy đủ và kh�
 
 `requestJson` kiểm tra HTTP status và Lark code kể cả HTTP 200. Không đính kèm nguyên nhân HTTP gốc vì lỗi helper có thể chứa request body/header bí mật. Message từ Lark được che các secret/token đã biết và dạng Bearer. Lỗi n8n phía ngoài dùng NodeOperationError với itemIndex.
 
-Thử lại chỉ áp dụng rate limit và làm mới token một lần, không áp dụng mạng/5xx khi trạng thái ghi không rõ. Không có queue toàn cục hoặc transaction qua nhiều batch. Chính sách được mô tả trong README để người dùng xây workflow phục hồi phù hợp.
+Retry đọc/ghi theo chính sách Unreleased ở trên; không có queue toàn cục hoặc transaction qua nhiều batch. Chính sách và giới hạn được mô tả trong README/data-safety.md để xây workflow phục hồi phù hợp.
 
 ## Các thao tác record
 

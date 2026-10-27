@@ -1,0 +1,38 @@
+{
+	"name": "Lark — Upsert đơn hàng theo Unique Key",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "74d85a8e-339d-4772-9b10-08315ab96fb6",
+			"name": "Chạy thủ công",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "record",
+				"operation": "batchUpsert",
+				"authentication": "appCredentials",
+				"base": "https://example.larksuite.com/base/THAYAPPTOKEN?table=tblTHAYTABLEID",
+				"table": { "__rl": true, "mode": "id", "value": "" },
+				"uniqueKeySource": "manual",
+				"uniqueKeyFieldManual": "Mã đơn",
+				"records": "[{\"fields\":{\"Mã đơn\":\"A001\",\"Doanh thu\":100}},{\"fields\":{\"Mã đơn\":\"A002\",\"Doanh thu\":200}}]",
+				"batchSize": 500
+			},
+			"id": "93ba0937-8ec7-41be-b323-53171062607a",
+			"name": "Upsert đơn hàng",
+			"type": "@vutiendung/n8n-nodes-lark-base.larkBase",
+			"typeVersion": 3,
+			"position": [280, 0],
+			"notes": "Mẫu Unreleased. Chọn credential Lark API (Vutiendung), thay Base/bảng/cột thật. App phải thấy toàn bảng/cột khóa. Không chạy song song nhiều writer cùng business key. Không dùng Retry On Fail để phát lại mù quáng. Tệp không có credential/secret thật."
+		}
+	],
+	"connections": {
+		"Chạy thủ công": { "main": [[{ "node": "Upsert đơn hàng", "type": "main", "index": 0 }]] }
+	},
+	"settings": { "executionOrder": "v1" },
+	"active": false,
+	"pinData": {}
+}

@@ -1,5 +1,16 @@
 # Lịch sử thay đổi
 
+## Unreleased
+
+- Thêm Upsert, Batch Upsert, Update/Delete By Unique Key và Check Duplicates; whitelist cột khóa Text/Number, dropdown metadata và nhập tên thủ công.
+- Lookup chính xác có trạng thái not_found/found/duplicate; lỗi API/permission/timeout/429/5xx/schema/cursor luôn lỗi, không dùng làm căn cứ Create. Lookup bỏ qua view/filter/sort/Limit từ UI, kiểm tra đủ trang/khóa/ID/total.
+- Preflight khóa rỗng/trùng trong mảng và giữa n8n input items trước ghi; kiểm tra trùng trực tiếp trước HTTP, trùng Number chuẩn hóa sau metadata nhưng trước lookup. Batch lookup nhóm OR tối đa 10 khóa/16.000 byte; toàn batch phải đạt trước ghi.
+- Batch Upsert chia Update/Create tuần tự, map response về đúng khóa/ID, giữ pairedItem và record_index; lỗi ghi dừng lô còn lại, thông báo partial write.
+- Tách retry READ/WRITE, thêm backoff+jitter có thể inject trong test, Retry-After giây/HTTP date và ngân sách chờ. Create/Batch Create dùng UUID v4 client_token giữ nguyên trong retry/refresh; Create đơn nhận token đã lưu từ nguồn nếu cần.
+- Thay đổi hành vi cần kiểm tra khi nâng cấp: Update/Delete và batch tương ứng không tự retry rate limit/timeout/5xx; Create có client_token có thể retry lỗi tạm thời; Search/List từ chối response thiếu items thay vì trả rỗng. WriteConflict 1254291 không tự retry. Không đổi operation/parameter/output cũ hoặc xóa support node version 1–3.
+- README chỉ mô tả behavior hiện tại; migration chuyển sang docs/migration.md, thêm docs/upsert.md, docs/data-safety.md, plan và workflow mẫu. Document quyền đọc toàn bảng, race condition, replay và giới hạn client_token.
+- Giữ nguyên version package; đề xuất 0.4.0 khi đủ kiểm thử tenant thật. Không publish tự động.
+
 ## 0.3.1 — 24/10/2026
 
 - Sửa lỗi bộ lọc Ngày cụ thể từ ô lịch n8n: nhận `YYYY-MM-DDTHH:mm:ss` và `YYYY-MM-DD HH:mm:ss` không có offset, chuyển sang timestamp theo `getTimezone()` của workflow.
