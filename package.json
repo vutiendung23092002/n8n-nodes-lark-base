@@ -1,6 +1,6 @@
 {
 	"name": "@vutiendung/n8n-nodes-lark-base",
-	"version": "0.3.1",
+	"version": "0.4.0",
 	"description": "Kết nối Lark Base với n8n: đọc, tìm kiếm và cập nhật bản ghi theo cấu trúc bảng.",
 	"license": "MIT",
 	"author": {
