@@ -1,5 +1,13 @@
 # Kiểm chứng và tương thích
 
+## Tối ưu preflight Unique Key — 27/10/2026
+
+Review commit `9da7391` trước khi sửa. Dùng HTTP giả lập tái hiện trên code cũ: 100 input Upsert cùng credential/Base/Table gọi token 100 lần, fields 100 lần, lookup 100 lần, write 100 lần; 500 items gọi tương ứng 500/500/500/500. Sau sửa, token/fields còn 1/1 trong cả hai trường hợp; lookup/write vẫn 100/100 hoặc 500/500. Điều kiện: token chưa hết hạn, fields có một trang, không có retry/lỗi, mọi lookup NOT_FOUND. Đây là call count, không phải benchmark thời gian/API thật.
+
+Thêm 28 test trong `tests/uniqueCache.test.ts`, giữ nguyên 209 test cũ. Xác minh token A/B/A không dùng chéo client/schema, cùng token reuse; tách mode/platform/credential values và Base/Table; fields nhiều trang chỉ tải một lượt; rejected metadata/token promise không bị giữ; refresh dùng lại provider; hai lần execute có cache mới; khóa trùng raw/canonical vẫn chặn trước lookup/write; lookup 429/403/503/response sai/duplicate/cursor không ghi. Batch Upsert giữ lookup toàn batch trước ghi, update trước create, map response đảo thứ tự, record_index/pairedItem. Test 429/503 dùng Retry-After vượt budget để dừng ngay; test retry hết số lần có sẵn vẫn giữ nguyên.
+
+Lint, typecheck, **237/237 test** (209 cũ + 28 mới), build, npm pack và test:package đều đạt. Gói chứa 137 tệp, nạp được node/credential với runtime n8n-workflow 2.4.1, hợp đồng enum cũ và đăng ký không nạp runtime. Review diff và git diff --check đạt. Không thay đổi đường thực thi operation cũ, phiên bản package/node hay dependencies; không commit/push/publish trong đợt tối ưu này. Các phép thử dùng HTTP giả lập, chưa chạy tenant Lark thật.
+
 ## Đợt Unreleased an toàn dữ liệu — 27/10/2026
 
 Đọc cấu trúc repository, transport, pagination, action/helper/UI record, tests, README và docs trước khi sửa; đánh giá và plan lưu ở data-safety-plan.md. Giữ nguyên package version 0.3.1 và node version 1–3. Changelog Unreleased, đề xuất 0.4.0 khi phát hành. Không publish tự động.

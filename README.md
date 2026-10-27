@@ -17,6 +17,8 @@ Tạo credential **Lark API (Vutiendung)**, chọn nền tảng và nhập App I
 
 Mỗi app có credential/node token riêng. Secret nằm trong kho credential n8n; token output có thể lưu trong execution history. Không đưa secret/token thật vào repository/workflow mẫu.
 
+Các thao tác theo Unique Key dùng chung client/token provider và metadata loader trong một lần execute khi cùng chế độ xác thực, nền tảng và thông tin xác thực đã resolve theo item. Schema tách theo Base/Table; token khác nhau không dùng chung client/schema. Cache không tồn tại giữa các execution; metadata lỗi được bỏ khỏi cache để item sau có thể thử lại.
+
 ## Thao tác Record
 
 | Thao tác                       | Giá trị nội bộ                                | Hành vi                                                  |
@@ -64,6 +66,8 @@ Khi toàn lookup hợp lệ, ghi Batch Update trước rồi Batch Create, lô t
 Chọn **Tìm kiếm → Chọn điều kiện → Thêm điều kiện**: chọn cột, phép lọc, giá trị. Có AND/OR; nhiều giá trị nhập mỗi dòng một giá trị, giữ dấu phẩy. Expression mảng có thể dùng `.join('\n')`. Rỗng/không rỗng không nhập giá trị. Ý nghĩa mảng theo phép lọc/loại cột Lark, không mặc định là OR cho mọi cột.
 
 Ô lịch dùng múi giờ workflow (`Asia/Ho_Chi_Minh` nếu dùng giờ Việt Nam); ISO có Z/offset giữ thời điểm. Có ngày tương đối. Cột ngày chỉ dùng là/lớn hơn/nhỏ hơn/rỗng/không rỗng. JSON nâng cao hỗ trợ nhóm children; sort dùng JSON như `[{"field_name":"Doanh thu","desc":true}]`. Lookup Unique Key không dùng view/filter/sort/Limit này.
+
+Với workflow **Search → IF → Create**, không dùng điều kiện **thiếu `record_id` → Create**: error item khi Continue On Fail cũng không có `record_id`. Kiểm tra `error` trước, sau đó mới quyết định Found/Not Found từ kết quả Search thành công. Pipeline cần chống trùng nên dùng Upsert/Batch Upsert, đồng thời tuân thủ giới hạn writer và quyền đọc ở trên.
 
 Fields nhận JSON/expression object, chỉ gửi cột được cung cấp; null xóa ô nếu API cho phép, giữ 0/false. Metadata kiểm tra tên/kiểu trước ghi. Hỗ trợ Text, Number, Select có lựa chọn tồn tại, Date, Checkbox, User theo open_id, Phone, URL, Attachment theo file_token và liên kết Record ID. Formula/Lookup/cột hệ thống không được ghi. Ngày trong Fields JSON dùng timestamp mili giây, YYYY-MM-DD theo UTC hoặc ISO có timezone.
 

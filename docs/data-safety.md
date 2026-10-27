@@ -33,3 +33,9 @@ Chưa xác minh thời hạn lưu client_token từ tài liệu chính thức, k
 Batch Upsert chỉ ghi sau khi lookup toàn input batch đạt. Lỗi ghi dừng lô tiếp theo; những lô xác nhận thành công giữ trong output khi Continue On Fail, lô lỗi có thể đã được ghi. Lô chưa chạy không được gắn action created/updated. Batch Create/Update/Delete cũ giữ logic lô/Continue On Fail, nhưng dùng retry mới; xem migration.
 
 Downstream phân nhánh theo error/action đã xác nhận, không dùng thiếu record_id → Create. Không tự bật Retry On Fail của n8n cho node ghi: chạy lại cả node có thể tạo client_token khác. Dùng Text cho mã dài/số 0 đầu, cấp quyền đầy đủ, scan duplicate trước vận hành và serialize writer. Thử checklist tenant thật với timeout/429/partial write trước dùng doanh thu/lợi nhuận.
+
+Workflow Search → IF → Create cũ vẫn được hỗ trợ. Khi bật Continue On Fail, phải kiểm tra `error` trước: error item cũng thiếu `record_id`, không phải xác nhận NOT_FOUND. Chỉ quyết định Found/Not Found sau khi Search thành công. Pipeline cần chống trùng nên dùng Upsert/Batch Upsert cùng các điều kiện về quyền đọc và điều phối writer nêu trên.
+
+## Cache trong preflight Unique Key
+
+Cache client/token/schema chỉ thuộc một lần execute, tách theo mode, platform, credential reference và App ID/App Secret đã resolve hoặc token ngoài. Token/schema của authorization context này không được dùng cho context khác; schema còn tách theo Base/Table. Cache không giữ kết quả lookup, không bỏ canonical duplicate check và không thay thế kiểm tra quyền đọc toàn bảng. Metadata đang dùng là schema đã đọc trong execution; không có cơ chế theo dõi thay đổi schema/quyền giữa lúc chạy. Request metadata lỗi bị loại khỏi cache; Continue On Fail giữ error item đó, item sau có thể thử lại, không chuyển lỗi thành NOT_FOUND.

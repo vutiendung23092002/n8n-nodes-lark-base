@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Tối ưu preflight Unique Key: reuse client/token provider theo authorization context và metadata loader theo client trong một execution; schema tách theo Base/Table, loại bỏ promise metadata lỗi. Không dùng chéo token/platform/credential đã resolve khác nhau, không cache xuyên execution. Thêm test tải giả lập 100/500 items, cách ly xác thực và regression safety.
 - Thêm Upsert, Batch Upsert, Update/Delete By Unique Key và Check Duplicates; whitelist cột khóa Text/Number, dropdown metadata và nhập tên thủ công.
 - Lookup chính xác có trạng thái not_found/found/duplicate; lỗi API/permission/timeout/429/5xx/schema/cursor luôn lỗi, không dùng làm căn cứ Create. Lookup bỏ qua view/filter/sort/Limit từ UI, kiểm tra đủ trang/khóa/ID/total.
 - Preflight khóa rỗng/trùng trong mảng và giữa n8n input items trước ghi; kiểm tra trùng trực tiếp trước HTTP, trùng Number chuẩn hóa sau metadata nhưng trước lookup. Batch lookup nhóm OR tối đa 10 khóa/16.000 byte; toàn batch phải đạt trước ghi.

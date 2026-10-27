@@ -6,7 +6,7 @@ import type {
 	ICredentialsDecrypted,
 	INodeCredentialTestResult,
 } from 'n8n-workflow';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import type { ApiRequest, LarkClient, TokenProvider } from '../types';
 import { API_ORIGINS, createTenantTokenProvider, readCredentials } from './getTenantAccessToken';
 import { requestJson, type HttpRequest } from './http';
@@ -95,20 +95,61 @@ export async function clientForContext(
 	context: IExecuteFunctions | ILoadOptionsFunctions,
 	itemIndex?: number,
 ): Promise<LarkClient> {
+	return await resolveContextClient(context, itemIndex);
+}
+
+// Call once per execute. Resolve authentication for every item before deciding to reuse a client;
+// a credential can contain expressions and a supplied token can vary with the input.
+export function createExecutionClientResolver(context: IExecuteFunctions) {
+	const clients = new Map<string, LarkClient>();
+	return async (itemIndex: number): Promise<LarkClient> =>
+		await resolveContextClient(context, itemIndex, clients);
+}
+
+async function resolveContextClient(
+	context: IExecuteFunctions | ILoadOptionsFunctions,
+	itemIndex?: number,
+	clients?: Map<string, LarkClient>,
+): Promise<LarkClient> {
 	const httpRequest = context.helpers.httpRequest.bind(context);
+	const reuse = (identity: readonly string[], create: () => LarkClient): LarkClient => {
+		if (!clients) return create();
+		// Length-prefix each UTF-8 component: no delimiter collisions or raw secrets in cache keys.
+		// The digest and map stay private to this execution and are never logged or returned.
+		const hash = createHash('sha256');
+		for (const part of identity) hash.update(`${Buffer.byteLength(part, 'utf8')}:`).update(part);
+		const key = hash.digest('hex');
+		let client = clients.get(key);
+		if (!client) {
+			client = create();
+			clients.set(key, client);
+		}
+		return client;
+	};
 	if (usesTenantToken(context, itemIndex)) {
-		const tokenProvider = createProvidedTokenProvider(
-			authParameter(context, 'tenantAccessToken', '', itemIndex),
-		);
+		const input = authParameter(context, 'tenantAccessToken', '', itemIndex);
+		const tokenProvider = createProvidedTokenProvider(input);
 		const platform = readPlatform(authParameter(context, 'platform', 'lark', itemIndex));
-		return createLarkClient(httpRequest, API_ORIGINS[platform], tokenProvider);
+		return reuse(['tenantToken', platform, input.trim()], () =>
+			createLarkClient(httpRequest, API_ORIGINS[platform], tokenProvider),
+		);
 	}
 	const credentials = readCredentials(await context.getCredentials('vutiendungLarkApi', itemIndex));
-	return createLarkClient(
-		httpRequest,
-		API_ORIGINS[credentials.platform],
-		createTenantTokenProvider(httpRequest, credentials),
-		[credentials.appSecret],
+	return reuse(
+		[
+			'appCredentials',
+			credentials.platform,
+			context.getNode().credentials?.vutiendungLarkApi?.id ?? '',
+			credentials.appId,
+			credentials.appSecret,
+		],
+		() =>
+			createLarkClient(
+				httpRequest,
+				API_ORIGINS[credentials.platform],
+				createTenantTokenProvider(httpRequest, credentials),
+				[credentials.appSecret],
+			),
 	);
 }
 

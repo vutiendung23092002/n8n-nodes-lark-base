@@ -1,6 +1,7 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import type { RecordContext } from '../actions/record/types';
-import { clientForContext } from '../../../shared/transport/larkApiRequest';
+import { createExecutionClientResolver } from '../../../shared/transport/larkApiRequest';
+import type { LarkClient } from '../../../shared/types';
 import { buildRecordContext } from './buildRecordContext';
 import { createMetadataLoader, tablePath } from './metadata';
 import { parseBaseUrl, validateId } from './parseBaseUrl';
@@ -90,16 +91,23 @@ export async function preflightUniqueExecution(
 	if (!context.continueOnFail() && [...prepared.values()].some((entry) => entry instanceof Error))
 		return prepared;
 	const canonicalEntries: typeof rawEntries = [];
+	const clientForItem = createExecutionClientResolver(context);
+	const metadataByClient = new Map<LarkClient, ReturnType<typeof createMetadataLoader>>();
 	for (const [index, draft] of drafts) {
 		if (prepared.has(index)) continue;
 		try {
-			const client = await clientForContext(context, index);
+			const client = await clientForItem(index);
+			let metadata = metadataByClient.get(client);
+			if (!metadata) {
+				metadata = createMetadataLoader(client);
+				metadataByClient.set(client, metadata);
+			}
 			const recordContext = await buildRecordContext(
 				context,
 				index,
 				draft.operation,
 				client,
-				createMetadataLoader(client),
+				metadata,
 			);
 			const schema = await recordContext.metadata();
 			const field = selectUniqueField(schema, recordContext.uniqueKeyField);
