@@ -1,6 +1,12 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import type { RecordContext } from '../actions/record/types';
 import { createExecutionClientResolver } from '../../../shared/transport/larkApiRequest';
+import {
+	authParameter,
+	readPlatform,
+	usesTenantToken,
+} from '../../../shared/transport/tokenAuthentication';
+import type { API_ORIGINS } from '../../../shared/transport/getTenantAccessToken';
 import type { LarkClient } from '../../../shared/types';
 import { buildRecordContext } from './buildRecordContext';
 import { createMetadataLoader, tablePath } from './metadata';
@@ -23,6 +29,7 @@ export interface UniqueExecution {
 interface Draft {
 	operation: string;
 	scope: string;
+	platform: keyof typeof API_ORIGINS;
 }
 
 export async function preflightUniqueExecution(
@@ -44,7 +51,6 @@ export async function preflightUniqueExecution(
 				base.appToken,
 				validateId((selected || base.tableId || '').trim(), 'tbl'),
 			);
-			const scope = JSON.stringify([path, name]);
 			const input =
 				operation === 'batchUpsert'
 					? parseJsonValue(context.getNodeParameter('records', index), 'Bản ghi')
@@ -58,7 +64,16 @@ export async function preflightUniqueExecution(
 			const values = input.map((entry) =>
 				rawUniqueValue(requireObject(requireObject(entry, 'Bản ghi').fields, 'Fields')[name]),
 			);
-			drafts.set(index, { operation, scope });
+			// Credential mode takes its platform from locally resolved credential data, not the
+			// hidden token-mode parameter. Neither branch calls the token or metadata API.
+			const platform = readPlatform(
+				usesTenantToken(context, index)
+					? authParameter(context, 'platform', 'lark', index)
+					: ((await context.getCredentials('vutiendungLarkApi', index)).platform ?? 'lark'),
+			);
+			// Resource identity is independent of which credential/token can access this table.
+			const scope = JSON.stringify([platform, path, name]);
+			drafts.set(index, { operation, scope, platform });
 			for (const value of values)
 				rawEntries.push({ index, value, identity: JSON.stringify([scope, String(value)]) });
 		} catch (error) {
@@ -96,7 +111,7 @@ export async function preflightUniqueExecution(
 	for (const [index, draft] of drafts) {
 		if (prepared.has(index)) continue;
 		try {
-			const client = await clientForItem(index);
+			const client = await clientForItem(index, draft.platform);
 			let metadata = metadataByClient.get(client);
 			if (!metadata) {
 				metadata = createMetadataLoader(client);

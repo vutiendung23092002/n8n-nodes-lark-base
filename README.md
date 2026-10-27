@@ -55,7 +55,7 @@ Batch Upsert nhận mảng Bản ghi:
 ]
 ```
 
-Khóa trùng trực tiếp bị chặn trước HTTP, kể cả giữa n8n input items cùng bảng/cột; trùng sau chuẩn hóa Number bị chặn sau metadata, trước lookup/ghi. Không tự giữ dòng đầu/cuối. Lookup chia nhóm OR tối đa 10 khóa, filter tối đa 16.000 byte, đọc hết trang. Lookup lỗi/duplicate hủy mọi ghi của input batch đó.
+Khóa trùng trực tiếp bị chặn trước HTTP, kể cả giữa n8n input items cùng platform/Base/Table/cột khóa; trùng sau chuẩn hóa Number bị chặn sau metadata, trước lookup/ghi. Khác credential/token nhưng cùng resource vẫn kiểm tra trùng; Lark và Feishu là hai resource riêng dù App Token/Table ID giống nhau. Không tự giữ dòng đầu/cuối. Lookup chia nhóm OR tối đa 10 khóa, filter tối đa 16.000 byte, đọc hết trang. Lookup lỗi/duplicate hủy mọi ghi của input batch đó.
 
 Khi toàn lookup hợp lệ, ghi Batch Update trước rồi Batch Create, lô tuần tự. Lỗi ghi dừng các lô còn lại, không rollback. Output theo thứ tự input, có `record_index` trong mảng và pairedItem trỏ về n8n item chứa mảng. Continue On Fail giữ kết quả đã xác nhận và trả error item; downstream phải tách lỗi, không dùng thiếu record_id → Create.
 

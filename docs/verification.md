@@ -1,5 +1,13 @@
 # Kiểm chứng và tương thích
 
+## Duplicate scope theo resource — 27/10/2026
+
+Review commit `52cadf4` trước khi sửa. Test mới tái hiện lỗi scope `[path, name]`: raw key A001 hoặc canonical Number `"01"`/`1` giữa Lark/Feishu bị đánh dấu trùng dù API origin khác nhau. Scope mới `[platform, path, name]` dùng cho cả raw/canonical, không chứa authorization identity hay secret. Platform ở credential mode lấy từ credential resolve cục bộ; hidden parameter không thay đổi resource. Guard client kiểm tra lại platform để chặn expression đổi platform giữa hai pha.
+
+Thêm 20 test trong uniqueCache.test.ts, giữ nguyên 237 test trước đó: cùng resource vẫn duplicate dù credential/token/mode khác (raw không HTTP, canonical không lookup/write); khác platform/Base/Table/cột khóa không duplicate cho cả raw và Number canonical; kiểm tra API origin trong token, credential và mixed mode; platform thay đổi giữa preflight/client lỗi trước HTTP với cả hai chế độ Continue On Fail. Cache key/retry/client_token/architecture Batch Upsert, node/package version và dependencies không đổi.
+
+Lint, typecheck, **257/257 test**, build, npm pack, test:package và git diff --check đều đạt. Gói chứa 137 tệp; các kiểm tra loader runtime 2.4.1/enum cũ/không nạp runtime đạt. Test 100/500 items vẫn xác nhận token 1 lần, fields 1 lần; A/B/A, platform isolation, eviction metadata lỗi và cache chỉ một execution vẫn đạt. Toàn bộ regression fail-closed, retry và Batch Upsert trước đó được giữ. HTTP giả lập, chưa thử tenant Lark thật. Giữ version 0.3.1, không commit/push/publish trong đợt sửa scope này.
+
 ## Tối ưu preflight Unique Key — 27/10/2026
 
 Review commit `9da7391` trước khi sửa. Dùng HTTP giả lập tái hiện trên code cũ: 100 input Upsert cùng credential/Base/Table gọi token 100 lần, fields 100 lần, lookup 100 lần, write 100 lần; 500 items gọi tương ứng 500/500/500/500. Sau sửa, token/fields còn 1/1 trong cả hai trường hợp; lookup/write vẫn 100/100 hoặc 500/500. Điều kiện: token chưa hết hạn, fields có một trang, không có retry/lỗi, mọi lookup NOT_FOUND. Đây là call count, không phải benchmark thời gian/API thật.

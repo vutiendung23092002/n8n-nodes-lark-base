@@ -102,16 +102,26 @@ export async function clientForContext(
 // a credential can contain expressions and a supplied token can vary with the input.
 export function createExecutionClientResolver(context: IExecuteFunctions) {
 	const clients = new Map<string, LarkClient>();
-	return async (itemIndex: number): Promise<LarkClient> =>
-		await resolveContextClient(context, itemIndex, clients);
+	return async (
+		itemIndex: number,
+		expectedPlatform?: keyof typeof API_ORIGINS,
+	): Promise<LarkClient> =>
+		await resolveContextClient(context, itemIndex, clients, expectedPlatform);
 }
 
 async function resolveContextClient(
 	context: IExecuteFunctions | ILoadOptionsFunctions,
 	itemIndex?: number,
 	clients?: Map<string, LarkClient>,
+	expectedPlatform?: keyof typeof API_ORIGINS,
 ): Promise<LarkClient> {
 	const httpRequest = context.helpers.httpRequest.bind(context);
+	const checkPlatform = (platform: keyof typeof API_ORIGINS) => {
+		if (expectedPlatform !== undefined && platform !== expectedPlatform)
+			throw new Error(
+				'Nền tảng xác thực đã thay đổi sau preflight. Hãy kiểm tra expression và chạy lại node.',
+			);
+	};
 	const reuse = (identity: readonly string[], create: () => LarkClient): LarkClient => {
 		if (!clients) return create();
 		// Length-prefix each UTF-8 component: no delimiter collisions or raw secrets in cache keys.
@@ -130,11 +140,13 @@ async function resolveContextClient(
 		const input = authParameter(context, 'tenantAccessToken', '', itemIndex);
 		const tokenProvider = createProvidedTokenProvider(input);
 		const platform = readPlatform(authParameter(context, 'platform', 'lark', itemIndex));
+		checkPlatform(platform);
 		return reuse(['tenantToken', platform, input.trim()], () =>
 			createLarkClient(httpRequest, API_ORIGINS[platform], tokenProvider),
 		);
 	}
 	const credentials = readCredentials(await context.getCredentials('vutiendungLarkApi', itemIndex));
+	checkPlatform(credentials.platform);
 	return reuse(
 		[
 			'appCredentials',

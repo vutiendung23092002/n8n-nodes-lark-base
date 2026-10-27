@@ -395,6 +395,30 @@ for (const continueOnFail of [false, true]) {
 	});
 }
 
+for (const continueOnFail of [false, true]) {
+	test(`Credential platform changing after raw preflight fails closed before HTTP (Continue On Fail ${continueOnFail})`, async () => {
+		let resolutions = 0;
+		const { run, calls } = harness([{}], {
+			continueOnFail,
+			credentials: () => ({
+				appId: 'cliApp',
+				appSecret: 'fake-secret',
+				platform: ++resolutions === 1 ? 'lark' : 'feishu',
+			}),
+		});
+		if (!continueOnFail) await assert.rejects(run, /Nền tảng xác thực đã thay đổi/);
+		else {
+			const [output] = await run();
+			assert.equal(output.length, 1);
+			assert.match(String(output[0].json.error), /Nền tảng xác thực đã thay đổi/);
+			assert.equal(output[0].json.action, undefined);
+			assert.deepEqual(output[0].pairedItem, { item: 0 });
+			assert(!JSON.stringify(output).includes('fake-secret'));
+		}
+		assert.equal(calls.length, 0);
+	});
+}
+
 for (const failure of ['429', '403', '503', 'invalid', 'duplicate', 'cursor']) {
 	test(`Shared cache never turns ${failure} lookup into NOT_FOUND or Create`, async () => {
 		const { run, count, writes } = harness([{}, {}], {
@@ -538,3 +562,168 @@ test('Invalid supplied token never borrows a cached valid client under Continue 
 		assert.deepEqual(output[index].pairedItem, { item: index });
 	}
 });
+
+for (const [label, first, second] of [
+	['platform', { platform: 'lark' }, { platform: 'feishu' }],
+	['Base', { base: 'ABC' }, { base: 'DEF' }],
+	['Table', { table: 'tbl1' }, { table: 'tbl2' }],
+	[
+		'Unique Key Field',
+		{ uniqueKeyFieldManual: 'Order ID' },
+		{ uniqueKeyFieldManual: 'External ID' },
+	],
+] as const) {
+	for (const canonical of [false, true]) {
+		test(`Duplicate scope separates ${label}, including ${canonical ? 'canonical Number' : 'identical raw'} keys`, async () => {
+			const parameters = [first, second].map((target, index) => ({
+				authentication: 'tenantToken',
+				tenantAccessToken: 'fake-token',
+				fields: {
+					['uniqueKeyFieldManual' in target ? (target.uniqueKeyFieldManual ?? 'Key') : 'Key']:
+						canonical ? (index === 0 ? '01' : 1) : 'A001',
+				},
+				...target,
+			}));
+			const { run, calls, count } = harness(parameters, {
+				http: (options) => {
+					if (options.url.endsWith('/fields'))
+						return ok(
+							page(
+								['Key', 'Order ID', 'External ID'].map((field_name) => ({
+									field_id: `fld${field_name.replaceAll(' ', '')}`,
+									field_name,
+									type: canonical ? 2 : 1,
+								})),
+							),
+						);
+					if (options.url.endsWith('/records'))
+						return ok({
+							record: {
+								record_id: 'recNew',
+								fields: (options.body as { fields: IDataObject }).fields,
+							},
+						});
+					return undefined;
+				},
+			});
+			const [output] = await run();
+			assert.equal(count('/search'), 2);
+			assert.equal(count('/records'), 2);
+			assert.deepEqual(
+				output.map(({ json }) => json.unique_key),
+				canonical ? [1, 1] : ['A001', 'A001'],
+			);
+			assert(output.every(({ json }) => json.action === 'created' && json.error === undefined));
+			assert.deepEqual(
+				output.map(({ pairedItem }) => pairedItem),
+				[{ item: 0 }, { item: 1 }],
+			);
+			for (const suffix of ['/search', '/records'])
+				assert.deepEqual(
+					calls.filter(({ url }) => url.endsWith(suffix)).map(({ url }) => new URL(url).origin),
+					[
+						'https://open.larksuite.com',
+						label === 'platform' ? 'https://open.feishu.cn' : 'https://open.larksuite.com',
+					],
+				);
+		});
+	}
+}
+
+for (const authentication of ['appCredentials', 'mixed'] as const) {
+	test(`Duplicate scope uses effective platform from ${authentication}, not a hidden node platform parameter`, async () => {
+		const { run, calls, count } = harness(
+			[0, 1].map((index) => ({
+				authentication:
+					authentication === 'mixed' && index === 0 ? 'tenantToken' : 'appCredentials',
+				tenantAccessToken: 'fake-token',
+				platform: 'lark', // Hidden/irrelevant for the Feishu app credential.
+				fields: { Key: 'A001' },
+			})),
+			{
+				credentials: (index) => ({
+					appId: 'cliApp',
+					appSecret: 'fake-secret',
+					platform: index === 0 ? 'lark' : 'feishu',
+				}),
+			},
+		);
+		const [output] = await run();
+		assert(output.every(({ json }) => json.action === 'created'));
+		assert.equal(count('/fields'), 2);
+		for (const suffix of ['/fields', '/search', '/records'])
+			assert.deepEqual(
+				calls.filter(({ url }) => url.endsWith(suffix)).map(({ url }) => new URL(url).origin),
+				['https://open.larksuite.com', 'https://open.feishu.cn'],
+			);
+	});
+}
+
+for (const continueOnFail of [false, true]) {
+	for (const differentAuthorization of ['credential', 'token', 'mode'] as const) {
+		test(`Same resource/raw key remains duplicate across ${differentAuthorization} contexts (Continue On Fail ${continueOnFail})`, async () => {
+			const { run, calls } = harness(
+				[0, 1].map((index) => ({
+					authentication:
+						differentAuthorization === 'token' || (differentAuthorization === 'mode' && index === 1)
+							? 'tenantToken'
+							: 'appCredentials',
+					tenantAccessToken: `fake-token-${index}`,
+					// A hidden platform difference must not split two Lark credential resources.
+					platform: differentAuthorization === 'credential' && index === 1 ? 'feishu' : 'lark',
+					fields: { Key: 'A001' },
+				})),
+				{
+					continueOnFail,
+					credentials: (index) => ({
+						appId: `cliApp${index}`,
+						appSecret: `fake-secret-${index}`,
+						platform: 'lark',
+					}),
+				},
+			);
+			if (!continueOnFail) await assert.rejects(run, /trùng/);
+			else {
+				const [output] = await run();
+				assert.equal(output.length, 2);
+				assert(output.every(({ json }) => json.error && json.action === undefined));
+				assert.deepEqual(
+					output.map(({ pairedItem }) => pairedItem),
+					[{ item: 0 }, { item: 1 }],
+				);
+				assert(!/fake-secret|fake-token|cliApp/.test(JSON.stringify(output)));
+			}
+			assert.equal(calls.length, 0); // Includes tenant token, metadata, lookup and write endpoints.
+		});
+	}
+
+	test(`Same resource/canonical Number remains duplicate across credential contexts (Continue On Fail ${continueOnFail})`, async () => {
+		const { run, count, writes } = harness(
+			['01', 1].map((Key) => ({ fields: { Key } })),
+			{
+				continueOnFail,
+				credentials: (index) => ({
+					appId: `cliApp${index}`,
+					appSecret: `fake-secret-${index}`,
+					platform: 'lark',
+				}),
+				http: (options) =>
+					options.url.endsWith('/fields') ? ok(page([{ ...schema[0], type: 2 }])) : undefined,
+			},
+		);
+		if (!continueOnFail) await assert.rejects(run, /trùng/);
+		else {
+			const [output] = await run();
+			assert(output.every(({ json }) => json.error && json.action === undefined));
+			assert.deepEqual(
+				output.map(({ pairedItem }) => pairedItem),
+				[{ item: 0 }, { item: 1 }],
+			);
+			assert(!/fake-secret|fake-token|cliApp/.test(JSON.stringify(output)));
+		}
+		assert.equal(count('/tenant_access_token/internal'), 2);
+		assert.equal(count('/fields'), 2); // Authorization caches stay isolated despite shared resource identity.
+		assert.equal(count('/search'), 0);
+		assert.equal(writes().length, 0);
+	});
+}

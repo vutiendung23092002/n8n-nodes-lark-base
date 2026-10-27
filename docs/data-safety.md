@@ -38,4 +38,6 @@ Workflow Search → IF → Create cũ vẫn được hỗ trợ. Khi bật Conti
 
 ## Cache trong preflight Unique Key
 
+Duplicate business key dựa trên resource identity gồm platform, App Token, Table ID và Unique Key Field. Khác credential/token hoặc mode không tách cùng logical table thành hai resource; khác platform thì tách. Raw check không gọi API lấy token/metadata, canonical check vẫn chuẩn hóa Number sau metadata. Scope không chứa thông tin xác thực. Nếu platform resolve cho client khác platform đã dùng trong raw scope, node dừng item đó thay vì ghi sang resource khác.
+
 Cache client/token/schema chỉ thuộc một lần execute, tách theo mode, platform, credential reference và App ID/App Secret đã resolve hoặc token ngoài. Token/schema của authorization context này không được dùng cho context khác; schema còn tách theo Base/Table. Cache không giữ kết quả lookup, không bỏ canonical duplicate check và không thay thế kiểm tra quyền đọc toàn bảng. Metadata đang dùng là schema đã đọc trong execution; không có cơ chế theo dõi thay đổi schema/quyền giữa lúc chạy. Request metadata lỗi bị loại khỏi cache; Continue On Fail giữ error item đó, item sau có thể thử lại, không chuyển lỗi thành NOT_FOUND.
