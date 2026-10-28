@@ -29,6 +29,22 @@ export const datePresets = [
 
 const emptyOperators = new Set(['isEmpty', 'isNotEmpty']);
 const dateOperators = new Set(['is', 'isGreater', 'isLess', ...emptyOperators]);
+// Text, phone and URL filters accept one target string per condition.
+// Select/user/link fields have their own array semantics and must stay unchanged.
+const textFieldTypes = new Set([1, 13, 15]);
+const textOperators = new Set(['is', 'isNot', 'contains', 'doesNotContain']);
+const negativeOperators = new Set(['isNot', 'doesNotContain']);
+
+interface FilterCondition extends IDataObject {
+	field_name: string;
+	operator: string;
+	value: string[];
+}
+
+interface FilterGroup extends IDataObject {
+	conjunction: 'and' | 'or';
+	conditions: FilterCondition[];
+}
 
 function scalarString(value: unknown): string {
 	if (typeof value === 'string') return value;
@@ -50,7 +66,7 @@ export async function buildStructuredFilter(
 	if (!Array.isArray(entries)) throw new Error('Danh sách điều kiện lọc cần là một mảng.');
 	if (!entries.length) return undefined;
 	const fields = await loadFields();
-	const conditions = entries.map((entry: unknown, index: number) => {
+	const groups = entries.map<FilterGroup>((entry: unknown, index: number) => {
 		try {
 			const condition = requireObject(entry, 'Điều kiện lọc');
 			const fieldName =
@@ -102,12 +118,38 @@ export async function buildStructuredFilter(
 						throw new Error('Kiểu giá trị lọc không hợp lệ.');
 				}
 			}
-			return { field_name: fieldName, operator: String(operator), value };
+			if (
+				condition.valueMode === 'multiple' &&
+				value.length > 1 &&
+				textFieldTypes.has(field.type) &&
+				textOperators.has(String(operator))
+			) {
+				return {
+					conjunction: negativeOperators.has(String(operator)) ? 'and' : 'or',
+					conditions: value.map((item) => ({
+						field_name: fieldName,
+						operator: String(operator),
+						value: [item],
+					})),
+				};
+			}
+			return {
+				conjunction,
+				conditions: [{ field_name: fieldName, operator: String(operator), value }],
+			};
 		} catch (error) {
 			throw new Error(
 				`Điều kiện lọc ${index + 1}: ${error instanceof Error ? error.message : 'không hợp lệ'}`,
 			);
 		}
 	});
-	return { conjunction, conditions };
+	if (groups.length === 1) return groups[0];
+	const conditions: FilterCondition[] = [];
+	const children: FilterGroup[] = [];
+	for (const group of groups) {
+		if (group.conditions.length === 1 || group.conjunction === conjunction)
+			conditions.push(...group.conditions);
+		else children.push(group);
+	}
+	return { conjunction, conditions, ...(children.length ? { children } : {}) };
 }

@@ -22,6 +22,129 @@ const fields: LarkField[] = [
 const build = (condition: unknown[], conjunction = 'and') =>
 	buildStructuredFilter({ condition }, conjunction, async () => fields);
 
+test('Chứa nhiều từ trong cột văn bản tách thành OR, mỗi condition chỉ có một giá trị', async () => {
+	const condition = {
+		fieldName: 'Shop',
+		operator: 'contains',
+		valueMode: 'multiple',
+		multipleValues: 'bù đơn\r\nthiếu\r\nsai\r\n\r\n',
+	};
+	for (const conjunction of ['and', 'or']) {
+		assert.deepEqual(await build([condition], conjunction), {
+			conjunction: 'or',
+			conditions: ['bù đơn', 'thiếu', 'sai'].map((value) => ({
+				field_name: 'Shop',
+				operator: 'contains',
+				value: [value],
+			})),
+		});
+	}
+});
+
+test('Nhóm nhiều giá trị giữ đúng logic khi kết hợp AND/OR với điều kiện khác', async () => {
+	for (const conjunction of ['and', 'or']) {
+		for (const operator of ['is', 'isNot', 'contains', 'doesNotContain']) {
+			const groupConjunction = ['isNot', 'doesNotContain'].includes(operator) ? 'and' : 'or';
+			const groupConditions = ['A', 'B'].map((value) => ({
+				field_name: 'Shop',
+				operator,
+				value: [value],
+			}));
+			const otherCondition = { field_name: 'Tổng', operator: 'is', value: ['0'] };
+			assert.deepEqual(
+				await build(
+					[
+						{ fieldName: 'Shop', operator, valueMode: 'multiple', multipleValues: ['A', 'B'] },
+						{ fieldName: 'Tổng', operator: 'is', singleValue: 0 },
+					],
+					conjunction,
+				),
+				{
+					conjunction,
+					conditions:
+						groupConjunction === conjunction
+							? [...groupConditions, otherCondition]
+							: [otherCondition],
+					...(groupConjunction === conjunction
+						? {}
+						: {
+								children: [{ conjunction: groupConjunction, conditions: groupConditions }],
+							}),
+				},
+			);
+		}
+	}
+});
+
+test('Nhiều giá trị văn bản giữ nguyên hoa thường, dấu phẩy và khoảng trắng có nội dung', async () => {
+	const values = ['Shop A, miền Bắc', 'shop a', '  Shop C  '];
+	assert.deepEqual(
+		await build([
+			{ fieldName: 'Shop', operator: 'contains', valueMode: 'multiple', multipleValues: values },
+		]),
+		{
+			conjunction: 'or',
+			conditions: values.map((value) => ({
+				field_name: 'Shop',
+				operator: 'contains',
+				value: [value],
+			})),
+		},
+	);
+	assert.deepEqual(
+		await build([
+			{ fieldName: 'Shop', operator: 'contains', valueMode: 'multiple', multipleValues: 'A\n\n' },
+		]),
+		{
+			conjunction: 'and',
+			conditions: [{ field_name: 'Shop', operator: 'contains', value: ['A'] }],
+		},
+	);
+});
+
+test('Điện thoại/URL tách giá trị văn bản; Multi Select vẫn giữ mảng gốc', async () => {
+	for (const type of [13, 15]) {
+		assert.deepEqual(
+			await buildStructuredFilter(
+				{
+					condition: [
+						{
+							fieldName: 'Liên hệ',
+							operator: 'isNot',
+							valueMode: 'multiple',
+							multipleValues: ['A', 'B'],
+						},
+					],
+				},
+				'or',
+				async () => [{ field_id: 'fldContact', field_name: 'Liên hệ', type }],
+			),
+			{
+				conjunction: 'and',
+				conditions: ['A', 'B'].map((value) => ({
+					field_name: 'Liên hệ',
+					operator: 'isNot',
+					value: [value],
+				})),
+			},
+		);
+	}
+	assert.deepEqual(
+		await build([
+			{
+				fieldName: 'Nhãn',
+				operator: 'contains',
+				valueMode: 'multiple',
+				multipleValues: ['A', 'B'],
+			},
+		]),
+		{
+			conjunction: 'and',
+			conditions: [{ field_name: 'Nhãn', operator: 'contains', value: ['A', 'B'] }],
+		},
+	);
+});
+
 for (const { value: operator } of filterOperators) {
 	test(`Bộ lọc tạo đúng payload cho ${operator}`, async () => {
 		const empty = ['isEmpty', 'isNotEmpty'].includes(operator);

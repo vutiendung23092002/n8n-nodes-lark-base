@@ -63,6 +63,7 @@ Chưa thực hiện checklist này trong phiên phát triển vì không có ứ
 - [ ] Nhiều điều kiện: đổi AND/OR, kiểm tra các trang Search vẫn dùng cùng bộ lọc. Không có điều kiện thì lấy dữ liệu không lọc.
 - [ ] Nhiều giá trị mỗi dòng: thử CRLF, dòng trắng, dấu phẩy trong giá trị, expression `.join('\n')`. Kiểm tra mảng nhiều lựa chọn theo quy tắc Lark.
 - [ ] Rỗng/không rỗng: ô giá trị được ẩn, giá trị cũ không ảnh hưởng kết quả.
+- [ ] Cột Text: Chứa `bù đơn\nthiếu\nsai` phải khớp ít nhất một từ; Không chứa phải loại trừ cả ba từ. Thêm một dòng điều kiện khác, đổi AND/OR và so với các điều kiện đơn tương đương. Kiểm tra Phone/URL, Multi Select và mọi trang Search; đối chiếu trực tiếp trên tenant thật.
 - [ ] Cột ngày: chọn ngày cụ thể có múi giờ, hôm nay/hôm qua/ngày mai và tuần; thử phép không hỗ trợ để xác nhận báo lỗi trước Search.
 - [ ] Với package 0.3.1, đặt timezone workflow Asia/Ho_Chi_Minh, chọn 2026-01-02 00:00:00 bằng ô lịch (không expression) và chạy Search thành công; so sánh kết quả với ISO 2026-01-02T00:00:00+07:00 qua expression.
 - [ ] Đổi timezone workflow sang UTC, kiểm tra cùng giờ không offset đổi thành thời điểm UTC; giá trị có Z/+07:00 vẫn giữ nguyên thời điểm. Không cần đổi node version.

@@ -1,0 +1,415 @@
+{
+	"fields": [
+		{
+			"field_name": "ID định danh (TTS)",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Ngày tạo đơn",
+			"type": 5,
+			"ui_type": "DateTime",
+			"property": {
+				"date_formatter": "yyyy/MM/dd HH:mm"
+			}
+		},
+		{
+			"field_name": "Ngày quyết toán",
+			"type": 5,
+			"ui_type": "DateTime",
+			"property": {
+				"date_formatter": "yyyy/MM/dd HH:mm"
+			}
+		},
+		{
+			"field_name": "Mã statemen",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Mã đơn hàng",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Mã giao dịch",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Mã điều chỉnh",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Loại giao dịch",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "ID Shop",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Tên Shop",
+			"type": 1,
+			"ui_type": "Text"
+		},
+		{
+			"field_name": "Doanh thu (Gross)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Thực thu (Net)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Tổng phí & thuế",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Số tiền điều chỉnh",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí ship người bán",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Khách hàng thanh toán",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn tiền cho khách",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí CFV (Sàn)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn phí CFV (Sàn)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Giảm giá sàn",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn giảm giá sàn",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí giao hàng bán lẻ",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Thanh toán phí giao hàng bán lẻ",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn phí giao hàng bán lẻ",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Thuế bán hàng",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Thanh toán thuế bán hàng",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn thuế bán hàng",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí CFV (Người bán)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn phí CFV (Người bán)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Tổng tiền tạm tính trước giảm giá",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn tiền trước giảm giá",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Giảm giá người bán",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoàn giảm giá người bán",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoa hồng Affiliate Ads",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoa hồng Affiliate",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoa hồng Affiliate (trước PIT)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Hoa hồng đối tác Affiliate",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí Live Specials",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí nền tảng (Platform Commission)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí đặt trước (Pre-order)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí giao dịch (Transaction Fee)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí cơ sở hạ tầng (Infrastructure Fee)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí Voucher Xtra",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí Piship",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Thuế thu nhập cá nhân (PIT)",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Thuế VAT",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Phí vận chuyển thực tế",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Giảm giá phí vận chuyển",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		},
+		{
+			"field_name": "Giảm phí vận chuyển từ nền tảng",
+			"type": 2,
+			"ui_type": "Currency",
+			"property": {
+				"currency_code": "VND",
+				"formatter": "0"
+			}
+		}
+	],
+	"formatter": "const TRANSACTION_FIELD_MAP = {\n  order_create_time: \"Ngày tạo đơn\",\n  statement_time: \"Ngày quyết toán\",\n  statement_id: \"Mã statemen\",\n  order_id: \"Mã đơn hàng\",\n  transaction_id: \"Mã giao dịch\",\n  adjustment_id: \"Mã điều chỉnh\",\n  type: \"Loại giao dịch\",\n  shop_id: \"ID Shop\",\n  shop_name: \"Tên Shop\",\n  revenue_amount: \"Doanh thu (Gross)\",\n  settlement_amount: \"Thực thu (Net)\",\n  fee_tax_amount: \"Tổng phí & thuế\",\n  adjustment_amount: \"Số tiền điều chỉnh\",\n  shipping_cost_amount: \"Phí ship người bán\",\n  customer_payment_amount: \"Khách hàng thanh toán\",\n  customer_refund_amount: \"Hoàn tiền cho khách\",\n  platform_cofunded_discount_amount: \"Phí CFV (Sàn)\",\n  platform_cofunded_discount_refund_amount: \"Hoàn phí CFV (Sàn)\",\n  platform_discount_amount: \"Giảm giá sàn\",\n  platform_discount_refund_amount: \"Hoàn giảm giá sàn\",\n  retail_delivery_fee_amount: \"Phí giao hàng bán lẻ\",\n  retail_delivery_fee_payment_amount: \"Thanh toán phí giao hàng bán lẻ\",\n  retail_delivery_fee_refund_amount: \"Hoàn phí giao hàng bán lẻ\",\n  sales_tax_amount: \"Thuế bán hàng\",\n  sales_tax_payment_amount: \"Thanh toán thuế bán hàng\",\n  sales_tax_refund_amount: \"Hoàn thuế bán hàng\",\n  seller_cofunded_discount_amount: \"Phí CFV (Người bán)\",\n  seller_cofunded_discount_refund_amount: \"Hoàn phí CFV (Người bán)\",\n  subtotal_before_discount_amount: \"Tổng tiền tạm tính trước giảm giá\",\n  refund_subtotal_before_discount_amount: \"Hoàn tiền trước giảm giá\",\n  seller_discount_amount: \"Giảm giá người bán\",\n  seller_discount_refund_amount: \"Hoàn giảm giá người bán\",\n  affiliate_ads_commission_amount: \"Hoa hồng Affiliate Ads\",\n  affiliate_commission_amount: \"Hoa hồng Affiliate\",\n  affiliate_commission_amount_before_pit: \"Hoa hồng Affiliate (trước PIT)\",\n  affiliate_partner_commission_amount: \"Hoa hồng đối tác Affiliate\",\n  live_specials_fee_amount: \"Phí Live Specials\",\n  platform_commission_amount: \"Phí nền tảng (Platform Commission)\",\n  pre_order_service_fee_amount: \"Phí đặt trước (Pre-order)\",\n  transaction_fee_amount: \"Phí giao dịch (Transaction Fee)\",\n  vn_fix_infrastructure_fee: \"Phí cơ sở hạ tầng (Infrastructure Fee)\",\n  voucher_xtra_service_fee_amount: \"Phí Voucher Xtra\",\n  shipping_fee_guarantee_service_fee: \"Phí Piship\",\n  pit_amount: \"Thuế thu nhập cá nhân (PIT)\",\n  vat_amount: \"Thuế VAT\",\n  actual_shipping_fee_amount: \"Phí vận chuyển thực tế\",\n  shipping_fee_discount_amount: \"Giảm giá phí vận chuyển\",\n  platform_shipping_fee_discount_amount: \"Giảm phí vận chuyển từ nền tảng\",\n  id: \"ID định danh (TTS)\",\n};\n\nconst TRANSACTION_TYPE_MAP = {\n  order_id: 1,\n  transaction_id: 1,\n  adjustment_id: 1,\n  statement_id: 1,\n  order_create_time: 5,\n  statement_time: 5,\n  type: 1,\n  shop_id: 1,\n  shop_name: 1,\n  customer_payment_amount: 2,\n  customer_refund_amount: 2,\n  platform_cofunded_discount_amount: 2,\n  platform_cofunded_discount_refund_amount: 2,\n  platform_discount_amount: 2,\n  platform_discount_refund_amount: 2,\n  retail_delivery_fee_amount: 2,\n  retail_delivery_fee_payment_amount: 2,\n  retail_delivery_fee_refund_amount: 2,\n  sales_tax_amount: 2,\n  sales_tax_payment_amount: 2,\n  sales_tax_refund_amount: 2,\n  seller_cofunded_discount_amount: 2,\n  seller_cofunded_discount_refund_amount: 2,\n  revenue_amount: 2,\n  settlement_amount: 2,\n  fee_tax_amount: 2,\n  subtotal_before_discount_amount: 2,\n  refund_subtotal_before_discount_amount: 2,\n  seller_discount_amount: 2,\n  seller_discount_refund_amount: 2,\n  affiliate_ads_commission_amount: 2,\n  affiliate_commission_amount: 2,\n  affiliate_commission_amount_before_pit: 2,\n  affiliate_partner_commission_amount: 2,\n  live_specials_fee_amount: 2,\n  platform_commission_amount: 2,\n  pre_order_service_fee_amount: 2,\n  transaction_fee_amount: 2,\n  vn_fix_infrastructure_fee: 2,\n  voucher_xtra_service_fee_amount: 2,\n  shipping_fee_guarantee_service_fee: 2,\n  shipping_cost_amount: 2,\n  pit_amount: 2,\n  vat_amount: 2,\n  actual_shipping_fee_amount: 2,\n  shipping_fee_discount_amount: 2,\n  platform_shipping_fee_discount_amount: 2,\n  adjustment_amount: 2,\n  id: 1,\n};\n\nfunction normalizeFieldValue(type, value) {\n  if (value === null || value === undefined || value === \"\") return null;\n\n  switch (type) {\n    case 2: // number\n      return isNaN(value) ? null : Number(value);\n\n    case 5: // datetime\n      const d = new Date(value);\n      return isNaN(d.getTime()) ? null : d.getTime();\n\n    case 3: // boolean\n      return Boolean(value);\n\n    case 4: // json\n      try {\n        return typeof value === \"object\" ? JSON.stringify(value) : value;\n      } catch {\n        return null;\n      }\n\n    default: // text\n      if (typeof value === \"object\") return JSON.stringify(value);\n      return String(value);\n  }\n}\n\nfunction mapFieldsToLark(item, fieldMap, typeMap) {\n  const fields = {};\n\n  for (const [key, label] of Object.entries(fieldMap)) {\n    const value = item[key];\n\n    if (value !== undefined && value !== null) {\n      const type = typeMap[key] ?? 1; // default text\n      fields[label] = normalizeFieldValue(type, value);\n    }\n  }\n\n  return { fields };\n}\n\nfunction utcTimestampToVn(ts) {\n  const d = new Date(ts * 1000);\n\n  const yyyy = d.getUTCFullYear();\n  const mm = String(d.getUTCMonth() + 1).padStart(2, \"0\");\n  const dd = String(d.getUTCDate()).padStart(2, \"0\");\n  const hh = String(d.getUTCHours()).padStart(2, \"0\");\n  const mi = String(d.getUTCMinutes()).padStart(2, \"0\");\n  const ss = String(d.getUTCSeconds()).padStart(2, \"0\");\n\n  return `${yyyy}/${mm}/${dd} ${hh}:${mi}:${ss}`;\n}\n\nfunction utcTimestampToUtcISO(ts) {\n  if (!ts) return null;\n  return new Date(ts * 1000).toISOString(); \n}\n\nfunction formatTikTokTransactionFull(\n  trx = {},\n  shop_id,\n  shop_name,\n  statement_id,\n  statement_time,\n) {\n  const fee = trx?.fee_tax_breakdown?.fee || {};\n  const tax = trx?.fee_tax_breakdown?.tax || {};\n  const shipping = trx?.shipping_cost_breakdown || {};\n  const supplementaryShip = shipping?.supplementary_component || {};\n  const supplementary = trx?.supplementary_component || {};\n  const revenue = trx?.revenue_breakdown || {};\n\n  const formatted = {\n    // ===== META =====\n    id: `${trx.id || \"\"}${shop_id ? \"_\" + shop_id : \"\"}`,\n    adjustment_id: trx.adjustment_id || \"\",\n    transaction_id: trx.id || \"\",\n    order_id: trx.order_id ? trx.order_id : trx.adjustment_order_id || null,\n    order_create_time: utcTimestampToUtcISO(trx.order_create_time),\n    type: trx.type || \"\",\n    shop_id: shop_id || \"\",\n    shop_name: shop_name || \"\",\n\n    // ===== SUPPLEMENTARY COMPONENT =====\n    customer_payment_amount: Number(supplementary.customer_payment_amount || 0),\n    customer_refund_amount: Number(supplementary.customer_refund_amount || 0),\n    platform_cofunded_discount_amount: Number(\n      supplementary.platform_cofunded_discount_amount || 0,\n    ),\n    platform_cofunded_discount_refund_amount: Number(\n      supplementary.platform_cofunded_discount_refund_amount || 0,\n    ),\n    platform_discount_amount: Number(\n      supplementary.platform_discount_amount || 0,\n    ),\n    platform_discount_refund_amount: Number(\n      supplementary.platform_discount_refund_amount || 0,\n    ),\n    retail_delivery_fee_amount: Number(\n      supplementary.retail_delivery_fee_amount || 0,\n    ),\n    retail_delivery_fee_payment_amount: Number(\n      supplementary.retail_delivery_fee_payment_amount || 0,\n    ),\n    retail_delivery_fee_refund_amount: Number(\n      supplementary.retail_delivery_fee_refund_amount || 0,\n    ),\n    sales_tax_amount: Number(supplementary.sales_tax_amount || 0),\n    sales_tax_payment_amount: Number(\n      supplementary.sales_tax_payment_amount || 0,\n    ),\n    sales_tax_refund_amount: Number(supplementary.sales_tax_refund_amount || 0),\n    seller_cofunded_discount_amount: Number(\n      supplementary.seller_cofunded_discount_amount || 0,\n    ),\n    seller_cofunded_discount_refund_amount: Number(\n      supplementary.seller_cofunded_discount_refund_amount || 0,\n    ),\n\n    // ===== Overview =====\n    revenue_amount: Number(trx.revenue_amount || 0),\n    fee_tax_amount: Number(trx.fee_tax_amount || 0),\n    settlement_amount: Number(trx.settlement_amount || 0),\n\n    // ===== REVENUE BREAKDOWN =====\n    subtotal_before_discount_amount: Number(\n      revenue.subtotal_before_discount_amount || 0,\n    ),\n    refund_subtotal_before_discount_amount: Number(\n      revenue.refund_subtotal_before_discount_amount || 0,\n    ),\n    seller_discount_amount: Number(revenue.seller_discount_amount || 0),\n    seller_discount_refund_amount: Number(\n      revenue.seller_discount_refund_amount || 0,\n    ),\n\n    // ===== FEE BREAKDOWN =====\n    affiliate_ads_commission_amount: Number(\n      fee.affiliate_ads_commission_amount || 0,\n    ),\n    affiliate_commission_amount: Number(fee.affiliate_commission_amount || 0),\n    affiliate_commission_amount_before_pit: Number(\n      fee.affiliate_commission_amount_before_pit || 0,\n    ),\n    affiliate_partner_commission_amount: Number(\n      fee.affiliate_partner_commission_amount || 0,\n    ),\n    live_specials_fee_amount: Number(fee.live_specials_fee_amount || 0),\n    platform_commission_amount: Number(fee.platform_commission_amount || 0),\n    pre_order_service_fee_amount: Number(fee.pre_order_service_fee_amount || 0),\n    transaction_fee_amount: Number(fee.transaction_fee_amount || 0),\n    vn_fix_infrastructure_fee: Number(fee.vn_fix_infrastructure_fee || 0),\n    voucher_xtra_service_fee_amount: Number(\n      fee.voucher_xtra_service_fee_amount || 0,\n    ),\n    shipping_fee_guarantee_service_fee: Number(\n      fee.shipping_fee_guarantee_service_fee || 0\n    ),\n\n    // ===== TAX BREAKDOWN =====\n    pit_amount: Number(tax.pit_amount || 0),\n    vat_amount: Number(tax.vat_amount || 0),\n\n    // ===== SHIPPING BREAKDOWN =====\n    actual_shipping_fee_amount: Number(\n      shipping.actual_shipping_fee_amount || 0,\n    ),\n    shipping_fee_discount_amount: Number(\n      shipping.shipping_fee_discount_amount || 0,\n    ),\n    shipping_cost_amount: Number(trx.shipping_cost_amount) || 0,\n\n    statement_id: statement_id || \"\",\n    statement_time: utcTimestampToUtcISO(statement_time),\n\n    // ===== SHIPPING.SUPPLEMENTARY =====\n    platform_shipping_fee_discount_amount: Number(\n      supplementaryShip.platform_shipping_fee_discount_amount || 0,\n    ),\n\n    adjustment_amount: Number(trx.adjustment_amount) || 0,\n  };\n  return formatted;\n}\n\n",
+	"signing": "const crypto = require(\"crypto\");\n\nfunction generateTikTokSignSmart({\n  appSecret,\n  path,\n  params = {},\n  body = null,\n  contentType = \"application/json\",\n  method = \"GET\",\n}) {\n  if (!appSecret || !path) {\n    throw new Error(\"appSecret và path là bắt buộc\");\n  }\n\n  // Bỏ qua một số key không cần ký\n  const excludeKeys = new Set([\"sign\", \"access_token\"]);\n\n  const validKeys = Object.keys(params)\n    .filter(\n      (k) =>\n        !excludeKeys.has(k) &&\n        params[k] !== \"\" &&\n        params[k] !== null &&\n        params[k] !== undefined,\n    )\n    .sort();\n\n  // B1: nối key + value\n  const paramStr = validKeys.map((k) => `${k}${params[k]}`).join(\"\");\n\n  // B2: nối path + params\n  let strToSign = path + paramStr;\n\n  // B3: nếu là POST và không phải multipart → thêm body (kể cả rỗng)\n  if (\n    method !== \"GET\" &&\n    contentType !== \"multipart/form-data\" &&\n    body !== null\n  ) {\n    strToSign += JSON.stringify(body);\n  }\n\n  // B4: bọc secret trước & sau\n  const finalStr = `${appSecret}${strToSign}${appSecret}`;\n\n  // B5: HMAC-SHA256 -> hex lowercase\n  const sign = crypto\n    .createHmac(\"sha256\", appSecret)\n    .update(finalStr)\n    .digest(\"hex\");\n\n  return sign;\n}\n\n",
+	"month": "const now = new Date();\nconst timeZone = \"Asia/Ho_Chi_Minh\";\n\n// Lấy ngày hiện tại tại Việt Nam, không phụ thuộc timezone của server n8n.\nconst dateParts = Object.fromEntries(\n  new Intl.DateTimeFormat(\"en-US\", {\n    timeZone,\n    year: \"numeric\",\n    month: \"2-digit\",\n    day: \"2-digit\",\n  })\n    .formatToParts(now)\n    .filter((part) => part.type !== \"literal\")\n    .map((part) => [part.type, Number(part.value)]),\n);\n\nconst { year, month, day } = dateParts;\n\n// Get Statements chia ngày theo UTC. TikTok khuyến nghị dùng một thời điểm\n// trong ngày nhưng không dùng đúng 00:00 UTC, nên cộng 1 giây.\nconst from = Math.floor(Date.UTC(year, month - 1, day, 0, 0, 1) / 1000);\nconst to = Math.floor(Date.UTC(year, month - 1, day + 1, 0, 0, 1) / 1000);\n\nreturn [{\n  json: {\n    current_month: month,\n    statement_time_ge: from,\n    statement_time_lt: to,\n    from_utc: new Date(from * 1000).toISOString(),\n    to_utc: new Date(to * 1000).toISOString(),\n  },\n}];",
+	"range": "const range = $input.first().json;\n\nreturn {\n  month: range.current_month,\n  from: range.statement_time_ge,\n  to: range.statement_time_lt,\n  from_utc: range.from_utc,\n  to_utc: range.to_utc,\n};"
+}

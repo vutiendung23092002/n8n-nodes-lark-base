@@ -249,12 +249,77 @@ test('Search version 3 tạo bộ lọc AND theo item, dùng cùng filter khi ph
 			view_id: 'vew1',
 			filter: {
 				conjunction: 'and',
-				conditions: [
-					{ field_name: 'Shop', operator: 'contains', value: ['A', 'B'] },
-					{ field_name: 'Ghi chú', operator: 'isEmpty', value: [] },
+				conditions: [{ field_name: 'Ghi chú', operator: 'isEmpty', value: [] }],
+				children: [
+					{
+						conjunction: 'or',
+						conditions: [
+							{ field_name: 'Shop', operator: 'contains', value: ['A'] },
+							{ field_name: 'Shop', operator: 'contains', value: ['B'] },
+						],
+					},
 				],
 			},
 		});
+});
+
+test('Search nhiều từ ghi chú không gửi mảng contains sai; Chứa OR và Không chứa AND', async () => {
+	const records = [
+		{ record_id: 'rec1', fields: { 'Ghi chú để in': 'bù đơn lần trước' } },
+		{ record_id: 'rec2', fields: { 'Ghi chú để in': 'giao thiếu hàng' } },
+		{ record_id: 'rec3', fields: { 'Ghi chú để in': 'sai địa chỉ' } },
+		{ record_id: 'rec4', fields: { 'Ghi chú để in': 'đơn bình thường' } },
+		{ record_id: 'rec5', fields: { 'Ghi chú để in': 'bù đơn vì giao thiếu' } },
+	];
+	for (const operator of ['contains', 'doesNotContain']) {
+		const [items] = await new LarkBase().execute.call(
+			harness(
+				{
+					operation: 'search',
+					authentication: 'appCredentials',
+					returnAll: true,
+					filterConditions: {
+						condition: [
+							{
+								fieldName: 'Ghi chú để in',
+								operator,
+								valueMode: 'multiple',
+								multipleValues: 'bù đơn\nthiếu\nsai',
+							},
+						],
+					},
+				},
+				async (options) => {
+					if (options.url.endsWith('/fields'))
+						return ok({
+							items: [{ field_id: 'fldNotes', field_name: 'Ghi chú để in', type: 1 }],
+							has_more: false,
+						});
+					assert.equal(options.url.endsWith('/records/search'), true);
+					const filter = (options.body as IDataObject).filter as {
+						conjunction: string;
+						conditions: Array<{ value: string[] }>;
+					};
+					assert.equal(filter.conditions.length, 3);
+					for (const condition of filter.conditions) assert.equal(condition.value.length, 1);
+					assert.equal(filter.conjunction, operator === 'contains' ? 'or' : 'and');
+					const matches = records.filter((record) => {
+						const results = filter.conditions.map(({ value }) => {
+							const contains = record.fields['Ghi chú để in'].includes(value[0]);
+							return operator === 'contains' ? contains : !contains;
+						});
+						return filter.conjunction === 'or' ? results.some(Boolean) : results.every(Boolean);
+					});
+					return ok({ items: matches, has_more: false });
+				},
+				{ version: 3 },
+			),
+		);
+		assert.deepEqual(
+			items.map(({ json }) => json.record_id),
+			operator === 'contains' ? ['rec1', 'rec2', 'rec3', 'rec5'] : ['rec4'],
+		);
+	}
 });
 
 test('Search version 3 cho chọn JSON nâng cao; version 2 không tự đổi bộ lọc cũ', async () => {

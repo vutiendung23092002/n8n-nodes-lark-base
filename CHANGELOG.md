@@ -1,6 +1,11 @@
 # Lịch sử thay đổi
 
-## Unreleased
+## 0.4.1 — 28/10/2026
+
+- Sửa `InvalidFilter` khi dùng nhiều giá trị cho cột Text/Phone/URL trong bộ lọc trực quan: Là/Chứa tách thành nhóm OR, Không bằng/Không chứa tách thành nhóm AND; mỗi điều kiện API chỉ nhận một giá trị. Giữ logic AND/OR giữa các dòng bằng nhóm `children`, không thay đổi mảng Multi Select/người/liên kết hoặc JSON nâng cao. Thêm kiểm thử bộ lọc và payload Search/phân trang; chưa xác minh bản sửa trên Lark thật.
+- Thêm công cụ chuyển đổi workflow TikTok Finance, tài liệu và fixture kiểm thử đã loại bỏ thông tin xác thực; workflow chứa cấu hình riêng được tạo trong `.n8n/`, không đưa vào Git/npm.
+
+## 0.4.0 — 27/10/2026
 
 - Sửa false-positive duplicate preflight giữa Lark và Feishu: scope raw/canonical gồm platform + Base + Table + Unique Key Field, không phụ thuộc credential/token identity. Platform dùng parameter ở token mode, credential đã resolve ở credential mode, không gọi token/metadata trước raw check; dừng nếu platform thay đổi giữa hai pha. Giữ cache và fail-closed.
 - Tối ưu preflight Unique Key: reuse client/token provider theo authorization context và metadata loader theo client trong một execution; schema tách theo Base/Table, loại bỏ promise metadata lỗi. Không dùng chéo token/platform/credential đã resolve khác nhau, không cache xuyên execution. Thêm test tải giả lập 100/500 items, cách ly xác thực và regression safety.
@@ -11,7 +16,6 @@
 - Tách retry READ/WRITE, thêm backoff+jitter có thể inject trong test, Retry-After giây/HTTP date và ngân sách chờ. Create/Batch Create dùng UUID v4 client_token giữ nguyên trong retry/refresh; Create đơn nhận token đã lưu từ nguồn nếu cần.
 - Thay đổi hành vi cần kiểm tra khi nâng cấp: Update/Delete và batch tương ứng không tự retry rate limit/timeout/5xx; Create có client_token có thể retry lỗi tạm thời; Search/List từ chối response thiếu items thay vì trả rỗng. WriteConflict 1254291 không tự retry. Không đổi operation/parameter/output cũ hoặc xóa support node version 1–3.
 - README chỉ mô tả behavior hiện tại; migration chuyển sang docs/migration.md, thêm docs/upsert.md, docs/data-safety.md, plan và workflow mẫu. Document quyền đọc toàn bảng, race condition, replay và giới hạn client_token.
-- Giữ nguyên version package; đề xuất 0.4.0 khi đủ kiểm thử tenant thật. Không publish tự động.
 
 ## 0.3.1 — 24/10/2026
 

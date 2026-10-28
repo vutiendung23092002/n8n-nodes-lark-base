@@ -2,11 +2,11 @@
 
 Community nodes cho n8n tích hợp Lark Base/Feishu: lấy tenant access token, đọc, tìm kiếm, tạo, cập nhật, xóa và Upsert bản ghi. Tìm **Lark Base (Vutiendung)** hoặc **Lark Access Token (Vutiendung)** trong danh sách node.
 
-Mã nguồn hiện tại có thay đổi **Unreleased** về an toàn dữ liệu; version package chưa tăng và chưa publish. Kiểm thử dùng HTTP giả lập, chưa xác minh các operation mới trên tenant Lark thật. Lịch sử ở [CHANGELOG](CHANGELOG.md), chuyển đổi workflow ở [migration](docs/migration.md).
+Phiên bản **0.4.1** sửa lỗi bộ lọc văn bản nhiều giá trị trả `InvalidFilter`. Kiểm thử tự động dùng HTTP giả lập; bản sửa chưa được xác minh trên tenant Lark thật. Lịch sử ở [CHANGELOG](CHANGELOG.md), chuyển đổi workflow ở [migration](docs/migration.md).
 
 ## Cài đặt và xác thực
 
-Trên n8n self-hosted cho phép community packages, mở Settings → Community nodes → Install và nhập `@vutiendung/n8n-nodes-lark-base`. npm chỉ có bản đã được phát hành. Muốn thử Unreleased, build/cài tarball local vào thư mục community packages của chính tiến trình/container n8n rồi restart. Chưa xác minh n8n Cloud.
+Trên n8n self-hosted cho phép community packages, mở Settings → Community nodes → Install và nhập `@vutiendung/n8n-nodes-lark-base`. npm chỉ có bản đã được phát hành. Muốn thử bản chưa phát hành, build/cài tarball local vào thư mục community packages của chính tiến trình/container n8n rồi restart. Chưa xác minh n8n Cloud.
 
 Tạo ứng dụng nội bộ ở [Lark](https://open.larksuite.com/app) hoặc [Feishu](https://open.feishu.cn/app), cấp scope phù hợp (`bitable:app:readonly` cho đọc, `bitable:app` cho quản lý hoặc scope chi tiết theo endpoint), phát hành/phê duyệt app và thêm app vào Base. Scope API và quyền Base là hai lớp khác nhau.
 
@@ -63,7 +63,7 @@ Khi toàn lookup hợp lệ, ghi Batch Update trước rồi Batch Create, lô t
 
 ## Tìm kiếm và dữ liệu ghi
 
-Chọn **Tìm kiếm → Chọn điều kiện → Thêm điều kiện**: chọn cột, phép lọc, giá trị. Có AND/OR; nhiều giá trị nhập mỗi dòng một giá trị, giữ dấu phẩy. Expression mảng có thể dùng `.join('\n')`. Rỗng/không rỗng không nhập giá trị. Ý nghĩa mảng theo phép lọc/loại cột Lark, không mặc định là OR cho mọi cột.
+Chọn **Tìm kiếm → Chọn điều kiện → Thêm điều kiện**: chọn cột, phép lọc, giá trị. Có AND/OR giữa các dòng; nhiều giá trị nhập mỗi dòng một giá trị, giữ dấu phẩy và khoảng trắng có nội dung. Expression có thể trả mảng. Với cột Text/Phone/URL, nhiều giá trị của **Là/Chứa** khớp ít nhất một giá trị (OR), **Không bằng/Không chứa** loại trừ mọi giá trị (AND); node tách thành các điều kiện API một giá trị và giữ nhóm khi kết hợp với dòng khác. Các loại cột khác giữ quy tắc mảng của Lark. Rỗng/không rỗng không nhập giá trị. Bản sửa nhiều giá trị văn bản có từ package 0.4.1.
 
 Ô lịch dùng múi giờ workflow (`Asia/Ho_Chi_Minh` nếu dùng giờ Việt Nam); ISO có Z/offset giữ thời điểm. Có ngày tương đối. Cột ngày chỉ dùng là/lớn hơn/nhỏ hơn/rỗng/không rỗng. JSON nâng cao hỗ trợ nhóm children; sort dùng JSON như `[{"field_name":"Doanh thu","desc":true}]`. Lookup Unique Key không dùng view/filter/sort/Limit này.
 
@@ -99,5 +99,7 @@ npm run test:package
 PowerShell có thể dùng npm.cmd nếu npm.ps1 bị chặn. test:package kiểm tra tarball local; version sẽ được người duy trì tăng riêng khi phát hành, không publish tự động.
 
 Workflow mẫu: [liệt kê](examples/list-records.workflow.json), [lấy token](examples/token-list-records.workflow.json), [lọc](examples/search-records.workflow.json), [Upsert](examples/upsert-records.workflow.json). Không chứa credential thật. Xem [kiến trúc](docs/architecture.md), [kiểm chứng](docs/verification.md), [checklist](docs/manual-test.md), [nguồn API](docs/sources.md).
+
+Chuyển workflow TikTok Finance có sẵn sang Batch Upsert và tự tạo bảng tháng trong Base test: [hướng dẫn chuyển đổi](docs/tiktok-finance-workflow.md). File workflow riêng được tạo trong `.n8n/`, không đưa vào Git/npm vì có cấu hình bí mật từ nguồn.
 
 Giới hạn: chưa có OAuth/store app/Wiki resolver/Auto Map/transaction; scan giữ dữ liệu trong bộ nhớ, không có snapshot khi bảng đổi đồng thời. Upsert không thay thế điều phối writer và quyền đọc toàn bảng.

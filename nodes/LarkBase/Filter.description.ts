@@ -26,6 +26,8 @@ export const filterProperties: INodeProperties[] = [
 			{ name: 'Tất cả điều kiện (AND)', value: 'and' },
 			{ name: 'Bất kỳ điều kiện nào (OR)', value: 'or' },
 		],
+		description:
+			'Kết hợp giữa các dòng điều kiện. Trong một dòng văn bản nhiều giá trị, Là/Chứa khớp bất kỳ giá trị; Không bằng/Không chứa loại trừ tất cả giá trị.',
 	},
 	{
 		displayName: 'Bộ lọc',
@@ -118,7 +120,7 @@ export const filterProperties: INodeProperties[] = [
 						displayOptions: { ...needsValue, show: { valueMode: ['multiple'] } },
 						placeholder: 'Shop A\nShop B',
 						description:
-							'Mỗi giá trị một dòng; dấu phẩy được giữ nguyên. Với mảng từ node trước, dùng expression .join("\\n"). Mảng được gửi theo quy tắc của phép lọc và loại cột Lark.',
+							'Mỗi giá trị một dòng; giữ dấu phẩy và khoảng trắng. Với cột văn bản/điện thoại/URL: Là/Chứa khớp ít nhất một giá trị (OR); Không bằng/Không chứa phải loại trừ mọi giá trị (AND). Các loại cột khác giữ quy tắc mảng của Lark.',
 					},
 					{
 						displayName: 'Mốc ngày',
